@@ -3,9 +3,11 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { geistMono } from "./ui/fonts";
+import { useSwitchStore } from "./store/useSwitchStore";
 
 export default function Home() {
   const modesRef = useRef<HTMLDivElement | null>(null);
+  const isToggled = useSwitchStore((state) => state.isToggled);
 
   return (
     <main className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -21,7 +23,7 @@ export default function Home() {
           }}
           className="group flex rounded-full items-center justify-center h-12 w-40 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300"
         >
-          <div className="rounded-full bg-[#1E1E1E] group-hover:bg-[#121212] transition ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300">
+          <div className="rounded-full bg-black group-hover:bg-[#111111] transition ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300">
             Jump to Modes
           </div>
         </button>
@@ -36,8 +38,8 @@ export default function Home() {
             id="wordle"
             className="group h-[20dvh] max-h-20 min-h-20 w-[45dvw] max-w-85 min-w-15 flex justify-center items-center rounded-full ml-2 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] mr-2 hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300"
           >
-            <div className="rounded-full bg-[#1E1E1E] group-hover:bg-[#121212] transition ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300">
-              <Link href="/frc/wordle">
+            <div className="rounded-full bg-black group-hover:bg-[#111111] transition ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300">
+              <Link href={`/${isToggled ? "frc" : "ftc"}/wordle`}>
                 <p className="text-2xl w-fit">Wordle</p>
               </Link>
             </div>
@@ -46,8 +48,8 @@ export default function Home() {
             id="trivia"
             className="group h-[20dvh] max-h-20 min-h-20 w-[45dvw] max-w-85 min-w-15 flex justify-center items-center rounded-full ml-2 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] ml-2 hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300"
           >
-            <div className="rounded-full bg-[#1E1E1E] group-hover:bg-[#121212] transition ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300">
-              <Link href="/frc/trivia">
+            <div className="rounded-full bg-black group-hover:bg-[#111111] transition ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300">
+              <Link href={`/${isToggled ? "frc" : "ftc"}/trivia`}>
                 <p className="text-2xl w-fit">Trivia</p>
               </Link>
             </div>
