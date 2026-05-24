@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import React, { use } from "react";
 import { notFound } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
@@ -15,7 +15,11 @@ import {
   ListboxOptions,
 } from "@headlessui/react";
 import clsx from "clsx";
-import { ChevronDownIcon, CheckIcon } from "@heroicons/react/20/solid";
+import {
+  ChevronDownIcon,
+  CheckIcon,
+  Cog6ToothIcon,
+} from "@heroicons/react/20/solid";
 
 export default function Wordle({
   params,
@@ -38,30 +42,60 @@ export default function Wordle({
 
 function FRCWordle() {
   const [frcModalVisible, setFRCModalVisible] = useState(false);
-  useEffect(() => {
-    setTimeout(() => {
-      setFRCModalVisible(true);
-    }, 1000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setFRCModalVisible(true);
+  //   }, 1000);
+  // }, []);
+
+  const [frcSelectedArea, setFRCSelectedArea] = useState<
+    (typeof frcAreas)[number] | null
+  >(null);
+  const [frcSelectedDifficulty, setFRCSelectedDifficulty] = useState<
+    (typeof frcDifficulties)[number] | null
+  >(null);
 
   return (
     <main className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <div className="h-[calc(100dvh-4rem)] flex flex-col items-center justify-center">
+      <div className="h-[calc(100dvh-4rem)] flex flex-row items-center justify-center">
         <h1 className="text-3xl font-bold w-fit text-center p-4">
           Welcome to FRCdle
         </h1>
+        {/* <button
+          onClick={() => {
+            setFRCModalVisible(true);
+          }}
+          className="group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300"
+        >
+          <div className="rounded-full bg-black group-hover:bg-[#111111] transition ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300">
+            <Cog6ToothIcon className="fill-white size-4" />
+          </div>
+        </button> */}
+        <button
+          onClick={() => {
+            setFRCModalVisible(true);
+          }}
+          className="flex rounded-md items-center justify-center h-10 w-10 bg-black hover:bg-[#1E1E1E] transition ease-in-out duration-300 text-base"
+        >
+          <Cog6ToothIcon className="fill-white size-5" />
+        </button>
       </div>
-      <FRCModal
-        frcModalVisible={frcModalVisible}
-        setFRCModalVisible={setFRCModalVisible}
-      >
+      <FRCModal frcModalVisible={frcModalVisible}>
         <div className="flex flex-col w-full h-full bg-black justify-center items-center rounded-lg p-10 gap-5">
           <h1 className="font-bold text-2xl">FRCdle</h1>
-          <FRCModalAreaInput />
-          <FRCModalDifficultyInput />
+          <FRCModalAreaInput
+            frcSelectedArea={frcSelectedArea}
+            setFRCSelectedArea={setFRCSelectedArea}
+          />
+          <FRCModalDifficultyInput
+            frcSelectedDifficulty={frcSelectedDifficulty}
+            setFRCSelectedDifficulty={setFRCSelectedDifficulty}
+          />
           <button
             onClick={() => {
               setFRCModalVisible(false);
+              console.log("Area: " + frcSelectedArea?.name);
+              console.log("Difficulty: " + frcSelectedDifficulty?.type);
             }}
             className="group flex rounded-full items-center justify-center h-12 w-30 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300"
           >
@@ -78,18 +112,16 @@ function FRCWordle() {
 function FRCModal({
   children,
   frcModalVisible,
-  setFRCModalVisible,
 }: {
   children: React.ReactNode;
   frcModalVisible: boolean;
-  setFRCModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
     <div
       className={`flex justify-center items-center fixed w-full h-[calc(100dvh-4rem)] transition-colors z-0 ${frcModalVisible ? "visible bg-black/80" : "invisible"}`}
     >
       <div
-        className={`absolute transition-all transition-300 p-[3px] bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] rounded-lg h-[50dvh] w-[50dvw] min-w-60 min-h-10 max-w-100 max-h-100 ${frcModalVisible ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}
+        className={`absolute transition-all transition-300 p-[3px] bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] rounded-lg h-[50dvh] w-[50dvw] portrait:min-w-60 portrait:min-h-10 portrait:max-w-100 portrait:max-h-100 landscape:min-h-60 landscape:min-w-10 landscape:max-h-100 landscape:max-w-100 ${frcModalVisible ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}
       >
         {children}
       </div>
@@ -97,6 +129,7 @@ function FRCModal({
   );
 }
 
+//Took this directly from statbotics
 const frcAreas = [
   { id: 1, name: "All" },
   { id: 2, name: "California" },
@@ -116,11 +149,19 @@ const frcAreas = [
   { id: 16, name: "Regionals" },
 ];
 
-export function FRCModalAreaInput() {
+function FRCModalAreaInput({
+  frcSelectedArea,
+  setFRCSelectedArea,
+}: {
+  frcSelectedArea: (typeof frcAreas)[number] | null;
+  setFRCSelectedArea: React.Dispatch<
+    React.SetStateAction<(typeof frcAreas)[number] | null>
+  >;
+}) {
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<(typeof frcAreas)[number] | null>(
-    null,
-  );
+  // const [frcSelectedArea, setFRCSelectedArea] = useState<(typeof frcAreas)[number] | null>(
+  //   null,
+  // );
 
   const filteredAreas =
     query === ""
@@ -132,8 +173,8 @@ export function FRCModalAreaInput() {
   return (
     <div id="test" className="mx-auto h-10 w-full">
       <Combobox
-        value={selected}
-        onChange={(value) => setSelected(value)}
+        value={frcSelectedArea}
+        onChange={(value) => setFRCSelectedArea(value)}
         onClose={() => setQuery("")}
       >
         <div className="relative items-center justify-center">
@@ -142,7 +183,7 @@ export function FRCModalAreaInput() {
               "w-full rounded-lg border-none bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-white",
               "focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-[#0c3c64]",
             )}
-            key={selected ? selected.id : "empty"}
+            key={frcSelectedArea ? frcSelectedArea.id : "empty"}
             displayValue={(area: (typeof frcAreas)[number] | null) =>
               area?.name ?? ""
             }
@@ -185,11 +226,19 @@ const frcDifficulties = [
   { id: 3, type: "Hard" },
 ];
 
-function FRCModalDifficultyInput() {
+function FRCModalDifficultyInput({
+  frcSelectedDifficulty,
+  setFRCSelectedDifficulty,
+}: {
+  frcSelectedDifficulty: (typeof frcDifficulties)[number] | null;
+  setFRCSelectedDifficulty: React.Dispatch<
+    React.SetStateAction<(typeof frcDifficulties)[number] | null>
+  >;
+}) {
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<
-    (typeof frcDifficulties)[number] | null
-  >(null);
+  // const [frcSelectedDifficulty, setFRCSelectedDifficulty] = useState<
+  //   (typeof frcDifficulties)[number] | null
+  // >(null);
 
   const filteredDifficulties =
     query === ""
@@ -201,8 +250,8 @@ function FRCModalDifficultyInput() {
   return (
     <div id="test" className="mx-auto h-10 w-full">
       <Combobox
-        value={selected}
-        onChange={(value) => setSelected(value)}
+        value={frcSelectedDifficulty}
+        onChange={(value) => setFRCSelectedDifficulty(value)}
         onClose={() => setQuery("")}
       >
         <div className="relative items-center justify-center">
@@ -211,7 +260,7 @@ function FRCModalDifficultyInput() {
               "w-full rounded-lg border-none bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-white",
               "focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-[#0c3c64]",
             )}
-            key={selected ? selected.id : "empty"}
+            key={frcSelectedDifficulty ? frcSelectedDifficulty.id : "empty"}
             displayValue={(diff: (typeof frcDifficulties)[number] | null) =>
               diff?.type ?? ""
             }

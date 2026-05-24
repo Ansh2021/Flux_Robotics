@@ -90,7 +90,7 @@ export function Header() {
         {/* drawer */}
       </header>
       <div
-        className={`flex flex-col bg-black pl-3 pb-3 fixed top-0 left-0 w-full h-fit sm:hidden transition-all transition-discrete duration-150 ease-in-out z-0 justify-evenly ${headerDrawerToggled ? "translate-y-19 visible opacity-100" : "translate-y-0 invisible opacity-0"}`}
+        className={`flex flex-col bg-black pl-3 pb-3 fixed top-0 left-0 w-full h-fit sm:hidden transition-all transition-discrete duration-150 ease-in-out z-0 justify-evenly gap-4 ${headerDrawerToggled ? "translate-y-16 visible opacity-100" : "translate-y-0 invisible opacity-0"}`}
       >
         <div className="flex flex-row">
           <div className="bg-black px-4 py-2 rounded-md hover:bg-[#1E1E1E] transition ease-in-out duration:300 min-[400px]:hidden">
