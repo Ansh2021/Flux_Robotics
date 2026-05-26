@@ -9,10 +9,6 @@ import {
   ComboboxOptions,
   ComboboxOption,
   ComboboxButton,
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
 } from "@headlessui/react";
 import clsx from "clsx";
 import {
@@ -20,6 +16,15 @@ import {
   CheckIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/20/solid";
+import { Bounce, toast } from "react-toastify";
+
+//frc difficulty calc (for a certain season only; NOT history)
+/* difficulty rating=total sum of award points rating + norm epa calc (shown below)
+Impact=10; EI=8; Rookie AS=8; Judged Team Awards=5; Non-Judged=0
+Event Winner=10; Finalist=8
+Norm EPA Calc=
+(Highest Norm EPA of area - lowest norm epa of area)/team norm EPA * 10
+*/
 
 export default function Wordle({
   params,
@@ -55,13 +60,28 @@ function FRCWordle() {
     (typeof frcDifficulties)[number] | null
   >(null);
 
+  //Insufficient area/difficulty information
+  const insufficientInfo = () => {
+    toast.error("Please indicate a valid district/region and/or difficulty", {
+      theme: "dark",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      transition: Bounce,
+    });
+  };
+
   return (
     <main className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <div className="h-[calc(100dvh-4rem)] flex flex-row items-center justify-center">
-        <h1 className="text-3xl font-bold w-fit text-center p-4">
-          Welcome to FRCdle
-        </h1>
-        {/* <button
+      <div className="h-[calc(100dvh-4rem)] flex flex-col items-center justify-center">
+        <div className="flex flex-row items-center justify-center">
+          <h1 className="text-3xl font-bold w-fit text-center p-4">
+            Welcome to FRCdle
+          </h1>
+          {/* <button
           onClick={() => {
             setFRCModalVisible(true);
           }}
@@ -71,14 +91,16 @@ function FRCWordle() {
             <Cog6ToothIcon className="fill-white size-4" />
           </div>
         </button> */}
-        <button
-          onClick={() => {
-            setFRCModalVisible(true);
-          }}
-          className="flex rounded-md items-center justify-center h-10 w-10 bg-black hover:bg-[#1E1E1E] transition ease-in-out duration-300 text-base"
-        >
-          <Cog6ToothIcon className="fill-white size-5" />
-        </button>
+          <button
+            onClick={() => {
+              setFRCModalVisible(true);
+            }}
+            className="flex rounded-md items-center justify-center h-10 w-10 bg-black hover:bg-[#1E1E1E] transition ease-in-out duration-300 text-base"
+          >
+            <Cog6ToothIcon className="fill-white size-5" />
+          </button>
+        </div>
+        <div className="flex flex-row items-center justify-center"></div>
       </div>
       <FRCModal frcModalVisible={frcModalVisible}>
         <div className="flex flex-col w-full h-full bg-black justify-center items-center rounded-lg p-10 gap-5">
@@ -93,6 +115,10 @@ function FRCWordle() {
           />
           <button
             onClick={() => {
+              if (!(frcSelectedArea || frcSelectedDifficulty)) {
+                insufficientInfo();
+                return;
+              }
               setFRCModalVisible(false);
               console.log("Area: " + frcSelectedArea?.name);
               console.log("Difficulty: " + frcSelectedDifficulty?.type);
@@ -130,6 +156,8 @@ function FRCModal({
 }
 
 //Took this directly from statbotics
+//Might not be able to do regionals for now
+//For all, I have to query every single district (and figure out how to include regionals)
 const frcAreas = [
   { id: 1, name: "All" },
   { id: 2, name: "California" },
@@ -293,6 +321,24 @@ function FRCModalDifficultyInput({
         </ComboboxOptions>
       </Combobox>
     </div>
+  );
+}
+
+//team num (statbotics)
+//team name (statbotics)
+//rookie year (statbotics too prob)
+//norm epa (statbotics)
+//Award Num? (blue alliance)
+
+function FRCdleTable() {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+        </tr>
+      </thead>
+    </table>
   );
 }
 
