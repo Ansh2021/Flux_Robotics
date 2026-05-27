@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { geistMono } from "@/frontend/app/ui/fonts";
+import { geistMono } from "../ui/fonts";
 import { useRouter, usePathname } from "next/navigation";
 import ToggleSwitch from "../ui/toggleswitch";
 import { useSwitchStore } from "../store/useSwitchStore";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { Transition } from "@headlessui/react";
 
 //make it so the drawer doesn't overlap with the header's gradient when
 //coming out or stowing
