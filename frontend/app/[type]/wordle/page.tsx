@@ -24,6 +24,7 @@ Impact=10; EI=8; Rookie AS=8; Judged Team Awards=5; Non-Judged=0
 Event Winner=10; Finalist=8
 Norm EPA Calc=
 (Highest Norm EPA of area - lowest norm epa of area)/team norm EPA * 10
+lower difficulty rating=harder team to guess
 */
 
 export default function Wordle({
@@ -155,9 +156,14 @@ function FRCModal({
   );
 }
 
-//Took this directly from statbotics
-//Might not be able to do regionals for now
 //For all, I have to query every single district (and figure out how to include regionals)
+//Districts: https://www.thebluealliance.com/api/v3/district/2026pch/rankings
+//Regionals: https://www.thebluealliance.com/api/v3/regional_advancement/2026/rankings
+/* I'm looking at rankings here because the higher the team's rank, the higher their difficulty
+rating will be (makes them easier to guess).
+*/
+
+//Took this directly from statbotics
 const frcAreas = [
   { id: 1, name: "All" },
   { id: 2, name: "California" },
@@ -326,8 +332,9 @@ function FRCModalDifficultyInput({
 
 //team num (statbotics)
 //team name (statbotics)
-//rookie year (statbotics too prob)
-//norm epa (statbotics)
+//rookie year (tba works)
+//years competing w/ first (blue alliance) (https://www.thebluealliance.com/api/v3/team/frc1833/years_participated)
+//norm epa (cur year) (statbotics)
 //Award Num? (blue alliance)
 
 function FRCdleTable() {
