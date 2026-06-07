@@ -28,7 +28,7 @@ export function Header() {
     } else {
       router.push("/");
 
-      //remove hardcoded timeout
+      //TODO: remove hardcoded timeout
       //change to execute when window is fully loaded
       setTimeout(() => {
         const element = document.getElementById(id);
@@ -40,6 +40,7 @@ export function Header() {
   };
 
   //TODO: replace everything that gets hidden by a PIXEL amount to getting hidden by a REM amount
+  //maybe i don't need to do this
   const { isToggled, setIsToggled } = useSwitchStore();
   const [headerDrawerToggled, setHeaderDrawerToggled] = useState(false);
 
@@ -73,7 +74,8 @@ export function Header() {
             </Link>
           </div>
         </nav>
-        <div className="flex mr-10 h-full justify-center items-center gap-3 max-sm:hidden">
+        {/* TODO: remove "hidden" from the div below once i'm ready to add ftc games (replace w/ flex)*/}
+        <div className="hidden mr-10 h-full justify-center items-center gap-3 max-sm:hidden">
           <p
             className={`text-white/60 hover:text-white transition ease-in-out duration-500 text-xl ${geistMono.className} antialiased`}
           >
@@ -119,13 +121,16 @@ export function Header() {
             </Link>
           </div>
         </div>
-        <div className="flex flex-row h-full justify-center items-center w-fit gap-3 px-4 sm:hidden">
+        {/* TODO: remove "hidden" from the div below once i'm ready to add ftc games (replace w/ flex)*/}
+
+        <div className="hidden flex-row h-full justify-center items-center w-fit gap-3 px-4 sm:hidden">
           <p
             className={`text-white/60 hover:text-white transition ease-in-out duration-500 text-xl ${geistMono.className} antialiased`}
           >
             FTC
           </p>
-          <ToggleSwitch checked={isToggled} onChange={setIsToggled} />
+          {/* TODO: uncomment out the toggleswitch once i'm ready to add ftc games in*/}
+          {/* <ToggleSwitch checked={isToggled} onChange={setIsToggled} /> */}
           <p
             className={`text-white/60 hover:text-white transition ease-in-out duration-500 text-xl ${geistMono.className} antialiased`}
           >

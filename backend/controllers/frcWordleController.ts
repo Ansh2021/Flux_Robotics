@@ -4,3 +4,8 @@ export const getFRCWordleData = async (
   req: Request,
   res: Response,
 ): Promise<void> => {};
+
+export const getSingleTeamData = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {};

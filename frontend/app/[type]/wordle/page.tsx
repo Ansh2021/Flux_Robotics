@@ -19,12 +19,13 @@ import {
 import { Bounce, toast } from "react-toastify";
 
 //frc difficulty calc (for a certain season only; NOT history)
-/* difficulty rating=total sum of award points rating + norm epa calc (shown below)
+/* difficulty rating=total sum of award points rating + (norm epa calc + area rank calc)/2
 Impact=10; EI=8; Rookie AS=8; Judged Team Awards=5; Non-Judged=0
 Event Winner=10; Finalist=8
 Norm EPA Calc=
-(Highest Norm EPA of area - lowest norm epa of area)/team norm EPA * 10
-lower difficulty rating=harder team to guess
+10-((EPA Rank-1)/(Num Teams in Area-1)*9)
+Area Rank Calc=
+10-((Area Rank-1)/(Num Teams in Area-1)*9)
 */
 
 export default function Wordle({
@@ -48,11 +49,12 @@ export default function Wordle({
 
 function FRCWordle() {
   const [frcModalVisible, setFRCModalVisible] = useState(false);
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setFRCModalVisible(true);
-  //   }, 1000);
-  // }, []);
+  const [renderTable, setRenderTable] = useState(false);
+  useEffect(() => {
+    setTimeout(() => {
+      setFRCModalVisible(true);
+    }, 1000);
+  }, []);
 
   const [frcSelectedArea, setFRCSelectedArea] = useState<
     (typeof frcAreas)[number] | null
@@ -101,7 +103,11 @@ function FRCWordle() {
             <Cog6ToothIcon className="fill-white size-5" />
           </button>
         </div>
-        <div className="flex flex-row items-center justify-center"></div>
+        {renderTable && (
+          <div className="flex flex-row items-center justify-center">
+            <FRCdleTable frcSelectedDifficulty={frcSelectedDifficulty} />
+          </div>
+        )}
       </div>
       <FRCModal frcModalVisible={frcModalVisible}>
         <div className="flex flex-col w-full h-full bg-black justify-center items-center rounded-lg p-10 gap-5">
@@ -121,6 +127,7 @@ function FRCWordle() {
                 return;
               }
               setFRCModalVisible(false);
+              setRenderTable(true);
               console.log("Area: " + frcSelectedArea?.name);
               console.log("Difficulty: " + frcSelectedDifficulty?.type);
             }}
@@ -159,7 +166,7 @@ function FRCModal({
 //For all, I have to query every single district (and figure out how to include regionals)
 //Districts: https://www.thebluealliance.com/api/v3/district/2026pch/rankings
 //Regionals: https://www.thebluealliance.com/api/v3/regional_advancement/2026/rankings
-/* I'm looking at rankings here because the higher the team's rank, the higher their difficulty
+/* I'm looking at rankings here because the better the team's rank, the higher their difficulty
 rating will be (makes them easier to guess).
 */
 
@@ -332,19 +339,43 @@ function FRCModalDifficultyInput({
 
 //team num (statbotics)
 //team name (statbotics)
+//Area (when playing with all teams) ()
 //rookie year (tba works)
 //years competing w/ first (blue alliance) (https://www.thebluealliance.com/api/v3/team/frc1833/years_participated)
 //norm epa (cur year) (statbotics)
 //Award Num? (blue alliance)
+//
 
-function FRCdleTable() {
+function FRCdleTable({
+  frcSelectedDifficulty,
+}: {
+  frcSelectedDifficulty: (typeof frcDifficulties)[number] | null;
+}) {
+  // console.log(frcSelectedDifficulty?.type);
   return (
     <table>
       <thead>
         <tr>
-          <th></th>
+          <th>Team Number</th>
+          <th>Team Name</th>
+          {frcSelectedDifficulty?.type === "All" && <th>Area</th>}
+          <th>Rookie Year</th>
+          <th>Years Competing</th>
+          <th>Normalized EPA</th>
+          <th>Number of Awards</th>
         </tr>
       </thead>
+      <tbody>
+        <tr>
+          <td>4188</td>
+          <td>CSP</td>
+          {frcSelectedDifficulty?.type === "All" && <td>PCH</td>}
+          <td>2012</td>
+          <td>15</td>
+          <td>100</td>
+          <td>lots</td>
+        </tr>
+      </tbody>
     </table>
   );
 }
