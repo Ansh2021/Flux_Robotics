@@ -1,9 +1,12 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
+import { router } from "./routes/frcWordleRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 7000;
+
+const frcRouter = router;
 
 app.use(
   cors({
@@ -21,6 +24,8 @@ app.get("/", (req: Request, res: Response) => {
 app.get("/api/health", (req: Request, res: Response) => {
   res.json({ status: "ok", message: "Backend is running!" });
 });
+
+app.use("/frc", frcRouter);
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);

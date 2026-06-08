@@ -34,6 +34,7 @@ export default function Wordle({
   params: Promise<{ type: string }>;
 }) {
   const { type } = use(params);
+
   if (!(type.toLowerCase() === "frc" || type.toLowerCase() === "ftc")) {
     notFound();
   }
@@ -49,8 +50,35 @@ export default function Wordle({
 
 function FRCWordle() {
   const [frcModalVisible, setFRCModalVisible] = useState(false);
-  const [renderTable, setRenderTable] = useState(false);
+  const [tableVisible, setTableVisible] = useState(false);
+  const [forceUpdateTable, setForceUpdateTable] = useState(0);
+
+  const [newTeamInfo, setNewTeamInfo] = useState<NewTeamRow>();
+
   useEffect(() => {
+    async function getSingleFRCTeamData(teamNum: number) {
+      try {
+        console.log(
+          `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
+        );
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
+        );
+
+        if (!res.ok) {
+          throw new Error(`Error status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log(data);
+        setNewTeamInfo(data);
+        return data;
+      } catch (error: any) {
+        console.error(error);
+        return;
+      }
+    }
+    getSingleFRCTeamData(4414);
     setTimeout(() => {
       setFRCModalVisible(true);
     }, 1000);
@@ -103,9 +131,13 @@ function FRCWordle() {
             <Cog6ToothIcon className="fill-white size-5" />
           </button>
         </div>
-        {renderTable && (
+        {tableVisible && (
           <div className="flex flex-row items-center justify-center">
-            <FRCdleTable frcSelectedDifficulty={frcSelectedDifficulty} />
+            <FRCdleTable
+              forceUpdateTable={forceUpdateTable}
+              frcSelectedArea={frcSelectedArea}
+              newTeam={newTeamInfo}
+            />
           </div>
         )}
       </div>
@@ -127,7 +159,8 @@ function FRCWordle() {
                 return;
               }
               setFRCModalVisible(false);
-              setRenderTable(true);
+              setTableVisible(true);
+              setForceUpdateTable((cur) => cur + 1);
               console.log("Area: " + frcSelectedArea?.name);
               console.log("Difficulty: " + frcSelectedDifficulty?.type);
             }}
@@ -337,43 +370,69 @@ function FRCModalDifficultyInput({
   );
 }
 
-//team num (statbotics)
-//team name (statbotics)
-//Area (when playing with all teams) ()
+//team num (user/tba)
+//team name (tba)
+/*Area (when playing with all teams) (https://www.thebluealliance.com/api/v3/team/frc4188/districts 
+take the last entry and if it is not of the cur year, they're in a regional)*/
 //rookie year (tba works)
 //years competing w/ first (blue alliance) (https://www.thebluealliance.com/api/v3/team/frc1833/years_participated)
-//norm epa (cur year) (statbotics)
-//Award Num? (blue alliance)
-//
+//unitless epa (cur year) (statbotics)
+//EPA (unitless/normal too) rank (cur year) (statbotics)
+//Award Num? (blue alliance) (this year only just for consistency)
+
+interface NewTeamRow {
+  area: string;
+  awardNum: number;
+  epaRank: number;
+  numYearsParticipating: number;
+  rookieYear: number;
+  teamName: string;
+  teamNum: number;
+  unitlessEPA: number;
+}
 
 function FRCdleTable({
-  frcSelectedDifficulty,
+  forceUpdateTable,
+  frcSelectedArea,
+  newTeam,
 }: {
-  frcSelectedDifficulty: (typeof frcDifficulties)[number] | null;
+  forceUpdateTable: number;
+  frcSelectedArea: (typeof frcAreas)[number] | null;
+  newTeam: NewTeamRow | null;
 }) {
-  // console.log(frcSelectedDifficulty?.type);
+  // console.log(frcSelectedArea?.name === "All");
+  // console.log(frcSelectedArea?.name);
+
   return (
-    <table>
+    <table key={forceUpdateTable} className="border-2 border-[#0c3c64]">
       <thead>
         <tr>
-          <th>Team Number</th>
-          <th>Team Name</th>
-          {frcSelectedDifficulty?.type === "All" && <th>Area</th>}
-          <th>Rookie Year</th>
-          <th>Years Competing</th>
-          <th>Normalized EPA</th>
-          <th>Number of Awards</th>
+          <th className="border-2 border-[#0c3c64]">Team Number</th>
+          <th className="border-2 border-[#0c3c64]">Team Name</th>
+          {frcSelectedArea?.name === "All" && (
+            <th className="border-2 border-[#0c3c64]">Area</th>
+          )}
+          <th className="border-2 border-[#0c3c64]">Rookie Year</th>
+          <th className="border-2 border-[#0c3c64]">Years Competing</th>
+          <th className="border-2 border-[#0c3c64]">Unitless EPA</th>
+          <th className="border-2 border-[#0c3c64]">EPA Rank</th>
+          <th className="border-2 border-[#0c3c64]">Award Amount</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody className="text-center">
         <tr>
-          <td>4188</td>
-          <td>CSP</td>
-          {frcSelectedDifficulty?.type === "All" && <td>PCH</td>}
-          <td>2012</td>
-          <td>15</td>
-          <td>100</td>
-          <td>lots</td>
+          <td className="border-2 border-[#0c3c64]">{newTeam.teamNum}</td>
+          <td className="border-2 border-[#0c3c64]">{newTeam.teamName}</td>
+          {frcSelectedArea?.name === "All" && (
+            <td className="border-2 border-[#0c3c64]">{newTeam.area}</td>
+          )}
+          <td className="border-2 border-[#0c3c64]">{newTeam.rookieYear}</td>
+          <td className="border-2 border-[#0c3c64]">
+            {newTeam.numYearsParticipating}
+          </td>
+          <td className="border-2 border-[#0c3c64]">{newTeam.unitlessEPA}</td>
+          <td className="border-2 border-[#0c3c64]">{newTeam.epaRank}</td>
+          <td className="border-2 border-[#0c3c64]">{newTeam.awardNum}</td>
         </tr>
       </tbody>
     </table>
