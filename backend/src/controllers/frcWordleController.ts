@@ -14,8 +14,8 @@ export const getFRCWordleData = async (
 
 // https://www.thebluealliance.com/api/v3/team/frc4188
 interface TBATeamData {
-  key: string | null;
-  team_number: number | null;
+  key: string;
+  team_number: number;
   nickname: string | null;
   name: string | null;
   school_name: string | null;
@@ -30,7 +30,7 @@ interface TBATeamData {
   lng: number | null;
   location_name: string | null;
   website: string | null;
-  rookie_year: number | null;
+  rookie_year: number;
   motto: string | null;
 }
 
@@ -157,6 +157,7 @@ interface SingleTeamFetchParams {
   number: string;
 }
 
+//TODO: implement Etag If-None-Match into api calls
 export const getSingleTeamData = async (
   req: Request<SingleTeamFetchParams>,
   res: Response,
@@ -164,7 +165,6 @@ export const getSingleTeamData = async (
   //try catches are so cool
   try {
     const teamNum = req.query.number;
-    // const teamNum = 4188;
     console.log(teamNum);
 
     if (!teamNum) {
@@ -298,3 +298,223 @@ export const getSingleTeamData = async (
       .json({ error: "There was an issue with the server." });
   }
 };
+
+interface TBAAreaData {
+  adjustments: number;
+  event_points: EventPoints[];
+  point_total: number;
+  rank: number;
+  rookie_bonus: number;
+  single_event_bonus: number;
+  team_key: string;
+}
+
+interface EventPoints {
+  alliance_points: number;
+  award_points: number;
+  elim_points: number;
+  event_key: string;
+  qual_points: number;
+  total: number;
+}
+
+//so it knows that "req.query.district" actually exists
+interface MultiTeamFetchParams {
+  district: string;
+}
+
+export const getAreaTeamData = async (
+  req: Request<MultiTeamFetchParams>,
+  res: Response,
+): Promise<Response> => {
+  try {
+    const area = req.query.district;
+    console.log(area);
+
+    if (!area) {
+      return res.status(400).json({ error: "Please input an area parameter." });
+    }
+
+    if (area === "regionals") {
+      const response1 = await fetch(
+        "https://www.thebluealliance.com/api/v3/regional_advancement/2026/rankings",
+        {
+          method: "GET",
+          headers: {
+            "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+            accept: "application/json",
+          },
+        },
+      );
+
+      if (!response1.ok) {
+        throw new Error(
+          `The TBA API responded with status code ${response1.status}`,
+        );
+      }
+
+      const data1 = (await response1.json()) as TBAAreaData[];
+      const data1_ = data1.sort(
+        (a, b) =>
+          parseInt(a.team_key.replace(/\D/g, "")) -
+          parseInt(b.team_key.replace(/\D/g, "")),
+      );
+
+      let offset = 0;
+      let regionalTeams: StatboticsTeamYearData[] = [];
+      let curPulledTeams: StatboticsTeamYearData[];
+      do {
+        const response2 =
+          offset == 0
+            ? await fetch("https://api.statbotics.io/v3/team_years?year=2026", {
+                method: "GET",
+                headers: {
+                  accept: "application/json",
+                },
+              })
+            : await fetch(
+                `https://api.statbotics.io/v3/team_years?year=2026&offset=${offset}`,
+                {
+                  method: "GET",
+                  headers: {
+                    accept: "application/json",
+                  },
+                },
+              );
+        if (!response2.ok) {
+          throw new Error(
+            `The Statbotics API responded with status code: ${response2.status}`,
+          );
+        }
+        curPulledTeams = await response2.json();
+        regionalTeams =
+          offset == 0 ? curPulledTeams : [...regionalTeams, ...curPulledTeams];
+        offset += 1000;
+      } while (curPulledTeams.length >= 1000);
+
+      const data2 = [];
+      for (let i = 0; i < regionalTeams.length; i++) {
+        if (
+          !regionalTeams[i].district &&
+          regionalTeams[i].record.count !== 0 &&
+          !regionalTeams[i].name.includes("Off-Season Demo Team")
+        ) {
+          data2.push({
+            teamNum: regionalTeams[i].team,
+            teamName: regionalTeams[i].name,
+            rookieYear: regionalTeams[i].rookie_year,
+            unitlessEPA: regionalTeams[i].epa.unitless,
+            epaRank: regionalTeams[i].epa.ranks.district.rank,
+          });
+        }
+      }
+
+      const returnableData = [];
+      for (let i = 0; i < data2.length; i++) {
+        returnableData.push({
+          teamNum: data2[i].teamNum,
+          teamName: data2[i].teamName,
+          rookieYear: data2[i].rookieYear,
+          unitlessEPA: data2[i].unitlessEPA,
+          epaRank: data2[i].epaRank,
+          areaRank: data1_[i].rank,
+        });
+      }
+
+      return res.status(200).json(returnableData);
+    } else if (area === "all") {
+      let offset = 0;
+      let regionalTeams: StatboticsTeamYearData[] = [];
+      let curPulledTeams: StatboticsTeamYearData[];
+      do {
+        const response =
+          offset == 0
+            ? await fetch("https://api.statbotics.io/v3/team_years?year=2026", {
+                method: "GET",
+                headers: {
+                  accept: "application/json",
+                },
+              })
+            : await fetch(
+                `https://api.statbotics.io/v3/team_years?year=2026&offset=${offset}`,
+                {
+                  method: "GET",
+                  headers: {
+                    accept: "application/json",
+                  },
+                },
+              );
+        if (!response.ok) {
+          throw new Error(
+            `The Statbotics API responded with status code: ${response.status}`,
+          );
+        }
+        curPulledTeams = await response.json();
+        regionalTeams =
+          offset == 0 ? curPulledTeams : [...regionalTeams, ...curPulledTeams];
+        offset += 1000;
+      } while (curPulledTeams.length >= 1000);
+
+      const data = [];
+      for (let i = 0; i < regionalTeams.length; i++) {
+        if (!regionalTeams[i].district && regionalTeams[i].record.count !== 0) {
+          data.push({
+            teamNum: regionalTeams[i].team,
+            teamName: regionalTeams[i].name,
+            rookieYear: regionalTeams[i].rookie_year,
+            unitlessEPA: regionalTeams[i].epa.unitless,
+            epaRank: regionalTeams[i].epa.ranks.district,
+          });
+        }
+      }
+
+      console.log(data.length);
+      console.log(data);
+      //TODO: make this return statement actually return something
+      return res.status(400);
+    } else {
+      //For team num, team name, rookie year
+      const response1 = await fetch(
+        `https://www.thebluealliance.com/api/v3/district/2026${area}/teams
+`,
+        {
+          method: "GET",
+          headers: {
+            "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+            accept: "application/json",
+          },
+        },
+      );
+
+      if (!response1.ok) {
+        throw new Error(
+          `The TBA API responded with status code ${response1.status}`,
+        );
+      }
+
+      const data1 = (await response1.json()) as TBATeamData[];
+      const data1_ = data1.sort((a, b) => a.team_number - b.team_number);
+
+      // console.log(data1_);
+
+      return res.status(200).json(data1_);
+    }
+  } catch (error: any) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: "There was an issue with the server." });
+  }
+};
+
+// export const getAllAreaTeamData = async (
+//   req: Request<MultiTeamFetchParams>,
+//   res: Response,
+// ): Promise<Response> => {
+//   const area = req.query.district;
+//   console.log(area);
+
+//   if (!area) {
+//     return res.status(400).json({ error: "Please input an area parameter." });
+//   }
+// };
