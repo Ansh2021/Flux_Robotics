@@ -379,12 +379,12 @@ function FRCdleTable({
   const [frcAreaData, setFRCAreaData] = useState([]);
   const [allFRCAreaData, setAllFRCAreaData] = useState([]);
   const [regionalFRCAreaData, setRegionalFRCAreaData] = useState([]);
-  const [lastRequestedArea, setLastRequestedArea] = useState("");
+  const [lastRequestedArea, setLastRequestedArea] = useState<String[]>([]);
   const [lastRequestedDifficulty, setLastRequestedDifficulty] = useState("");
   const [isAreaRequestLoading, setIsAreaRequestLoading] = useState(false);
   const canGetAreaData = useRef(false);
 
-  const [requestFailed, setRequestFailed] = useState(false);
+  const [requestFailed, setRequestFailed] = useState<Boolean[]>([]);
 
   const [randomTeam, setRandomTeam] = useState("");
 
@@ -442,7 +442,7 @@ function FRCdleTable({
   useEffect(() => {
     async function getAreaFRCData(area: string) {
       try {
-        setRequestFailed(false);
+        setRequestFailed([...requestFailed, false]);
         setIsAreaRequestLoading(true);
         if (area !== "all") {
           if (
@@ -463,7 +463,7 @@ function FRCdleTable({
               setRegionalFRCAreaData(data);
               return;
             } else {
-              setFRCAreaData(data);
+              setFRCAreaData([...frcAreaData, data]);
               return;
             }
           } else {
@@ -471,7 +471,7 @@ function FRCdleTable({
           }
         } else if (allFRCAreaData.length === 0) {
           let resCA;
-          if (lastRequestedArea !== "ca") {
+          if (!lastRequestedArea.includes("ca")) {
             resCA = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=ca`,
             );
@@ -481,11 +481,12 @@ function FRCdleTable({
             }
           }
 
-          const dataCA =
-            lastRequestedArea !== "ca" ? await resCA.json() : frcAreaData;
+          const dataCA = !lastRequestedArea.includes("ca")
+            ? await resCA.json()
+            : frcAreaData[lastRequestedArea.indexOf("ca")];
 
           let resFCH;
-          if (lastRequestedArea !== "fch") {
+          if (!lastRequestedArea.includes("fch")) {
             resFCH = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fch`,
             );
@@ -495,11 +496,12 @@ function FRCdleTable({
             }
           }
 
-          const dataFCH =
-            lastRequestedArea !== "fch" ? await resFCH.json() : frcAreaData;
+          const dataFCH = !lastRequestedArea.includes("fch")
+            ? await resFCH.json()
+            : frcAreaData[lastRequestedArea.indexOf("fch")];
 
           let resFIM;
-          if (lastRequestedArea !== "fim") {
+          if (!lastRequestedArea.includes("fim")) {
             resFIM = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fim`,
             );
@@ -509,11 +511,12 @@ function FRCdleTable({
             }
           }
 
-          const dataFIM =
-            lastRequestedArea !== "fim" ? await resFIM.json() : frcAreaData;
+          const dataFIM = !lastRequestedArea.includes("fim")
+            ? await resFIM.json()
+            : frcAreaData[lastRequestedArea.indexOf("fim")];
 
           let resFIN;
-          if (lastRequestedArea !== "fin") {
+          if (!lastRequestedArea.includes("fin")) {
             resFIN = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fin`,
             );
@@ -523,11 +526,12 @@ function FRCdleTable({
             }
           }
 
-          const dataFIN =
-            lastRequestedArea !== "fin" ? await resFIN.json() : frcAreaData;
+          const dataFIN = !lastRequestedArea.includes("fin")
+            ? await resFIN.json()
+            : frcAreaData[lastRequestedArea.indexOf("fin")];
 
           let resFIT;
-          if (lastRequestedArea !== "fit") {
+          if (!lastRequestedArea.includes("fit")) {
             resFIT = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fit`,
             );
@@ -537,11 +541,12 @@ function FRCdleTable({
             }
           }
 
-          const dataFIT =
-            lastRequestedArea !== "fit" ? await resFIT.json() : frcAreaData;
+          const dataFIT = !lastRequestedArea.includes("fit")
+            ? await resFIT.json()
+            : frcAreaData[lastRequestedArea.indexOf("fit")];
 
           let resFMA;
-          if (lastRequestedArea !== "fma") {
+          if (!lastRequestedArea.includes("fma")) {
             resFMA = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fma`,
             );
@@ -551,11 +556,12 @@ function FRCdleTable({
             }
           }
 
-          const dataFMA =
-            lastRequestedArea !== "fma" ? await resFMA.json() : frcAreaData;
+          const dataFMA = !lastRequestedArea.includes("fma")
+            ? await resFMA.json()
+            : frcAreaData[lastRequestedArea.indexOf("fma")];
 
           let resFNC;
-          if (lastRequestedArea !== "fnc") {
+          if (!lastRequestedArea.includes("fnc")) {
             resFNC = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fnc`,
             );
@@ -565,11 +571,12 @@ function FRCdleTable({
             }
           }
 
-          const dataFNC =
-            lastRequestedArea !== "fnc" ? await resFNC.json() : frcAreaData;
+          const dataFNC = !lastRequestedArea.includes("fnc")
+            ? await resFNC.json()
+            : frcAreaData[lastRequestedArea.indexOf("fnc")];
 
           let resFSC;
-          if (lastRequestedArea !== "fsc") {
+          if (!lastRequestedArea.includes("fsc")) {
             resFSC = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fsc`,
             );
@@ -579,11 +586,12 @@ function FRCdleTable({
             }
           }
 
-          const dataFSC =
-            lastRequestedArea !== "fsc" ? await resFSC.json() : frcAreaData;
+          const dataFSC = !lastRequestedArea.includes("fsc")
+            ? await resFSC.json()
+            : frcAreaData[lastRequestedArea.indexOf("fsc")];
 
           let resISR;
-          if (lastRequestedArea !== "isr") {
+          if (!lastRequestedArea.includes("isr")) {
             resISR = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=isr`,
             );
@@ -593,11 +601,12 @@ function FRCdleTable({
             }
           }
 
-          const dataISR =
-            lastRequestedArea !== "isr" ? await resISR.json() : frcAreaData;
+          const dataISR = !lastRequestedArea.includes("isr")
+            ? await resISR.json()
+            : frcAreaData[lastRequestedArea.indexOf("isr")];
 
           let resNE;
-          if (lastRequestedArea !== "ne") {
+          if (!lastRequestedArea.includes("ne")) {
             resNE = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=ne`,
             );
@@ -607,11 +616,12 @@ function FRCdleTable({
             }
           }
 
-          const dataNE =
-            lastRequestedArea !== "ne" ? await resNE.json() : frcAreaData;
+          const dataNE = !lastRequestedArea.includes("ne")
+            ? await resNE.json()
+            : frcAreaData[lastRequestedArea.indexOf("ne")];
 
           let resONT;
-          if (lastRequestedArea !== "ont") {
+          if (!lastRequestedArea.includes("ont")) {
             resONT = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=ont`,
             );
@@ -621,11 +631,12 @@ function FRCdleTable({
             }
           }
 
-          const dataONT =
-            lastRequestedArea !== "ont" ? await resONT.json() : frcAreaData;
+          const dataONT = !lastRequestedArea.includes("ont")
+            ? await resONT.json()
+            : frcAreaData[lastRequestedArea.indexOf("ont")];
 
           let resPCH;
-          if (lastRequestedArea !== "pch") {
+          if (!lastRequestedArea.includes("pch")) {
             resPCH = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=pch`,
             );
@@ -635,11 +646,12 @@ function FRCdleTable({
             }
           }
 
-          const dataPCH =
-            lastRequestedArea !== "pch" ? await resPCH.json() : frcAreaData;
+          const dataPCH = !lastRequestedArea.includes("pch")
+            ? await resPCH.json()
+            : frcAreaData[lastRequestedArea.indexOf("pch")];
 
           let resPNW;
-          if (lastRequestedArea !== "pnw") {
+          if (!lastRequestedArea.includes("pnw")) {
             resPNW = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=pnw`,
             );
@@ -649,11 +661,12 @@ function FRCdleTable({
             }
           }
 
-          const dataPNW =
-            lastRequestedArea !== "pnw" ? await resPNW.json() : frcAreaData;
+          const dataPNW = !lastRequestedArea.includes("pnw")
+            ? await resPNW.json()
+            : frcAreaData[lastRequestedArea.indexOf("pnw")];
 
           let resWIN;
-          if (lastRequestedArea !== "win") {
+          if (!lastRequestedArea.includes("win")) {
             resWIN = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=win`,
             );
@@ -663,11 +676,12 @@ function FRCdleTable({
             }
           }
 
-          const dataWIN =
-            lastRequestedArea !== "win" ? await resWIN.json() : frcAreaData;
+          const dataWIN = !lastRequestedArea.includes("win")
+            ? await resWIN.json()
+            : frcAreaData[lastRequestedArea.indexOf("win")];
 
           let resRegionals;
-          if (lastRequestedArea !== "regionals") {
+          if (!lastRequestedArea.includes("regionals")) {
             resRegionals = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=regionals`,
             );
@@ -677,10 +691,9 @@ function FRCdleTable({
             }
           }
 
-          const dataRegionals =
-            lastRequestedArea !== "regionals"
-              ? await resRegionals.json()
-              : regionalFRCAreaData;
+          const dataRegionals = !lastRequestedArea.includes("regionals")
+            ? await resRegionals.json()
+            : regionalFRCAreaData;
 
           const allData = [
             ...dataCA,
@@ -706,8 +719,13 @@ function FRCdleTable({
         }
       } catch (error: any) {
         console.error(error);
-        setRequestFailed(true);
-        errorToast("Internal server error.");
+        setRequestFailed((oldRequestStatusArray) => {
+          const newRequestStatusArray = [...oldRequestStatusArray];
+          newRequestStatusArray[newRequestStatusArray.length - 1] = true;
+          return newRequestStatusArray;
+        });
+        throw new Error(error);
+        // errorToast("Internal server error.");
       } finally {
         setIsAreaRequestLoading(false);
       }
@@ -716,7 +734,7 @@ function FRCdleTable({
     if (!canGetAreaData.current) {
       canGetAreaData.current = true;
 
-      if (lastRequestedArea !== AreaCodeLookUp[frcSelectedArea.name]) {
+      if (!lastRequestedArea.includes(AreaCodeLookUp[frcSelectedArea.name])) {
         toast.promise(
           getAreaFRCData(AreaCodeLookUp[frcSelectedArea.name]),
           {
@@ -735,7 +753,10 @@ function FRCdleTable({
         );
 
         if (!requestFailed) {
-          setLastRequestedArea(AreaCodeLookUp[frcSelectedArea.name]);
+          setLastRequestedArea([
+            ...lastRequestedArea,
+            AreaCodeLookUp[frcSelectedArea.name],
+          ]);
         }
       } else {
         console.log("I will not be refetching the same district.");
@@ -748,7 +769,8 @@ function FRCdleTable({
     }
 
     if (
-      lastRequestedArea !== frcSelectedArea.name ||
+      lastRequestedArea[lastRequestedArea.length - 1] !==
+        frcSelectedArea.name ||
       lastRequestedDifficulty !== frcSelectedDifficulty.type
     ) {
       setTableRows([]);
