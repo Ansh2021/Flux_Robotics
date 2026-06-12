@@ -1,17 +1,5 @@
 import { Request, Response } from "express";
 
-export const getFRCWordleData = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {};
-
-// interface TBATeamData {
-//   teamName: string;
-//   rookieYear: number;
-//   numYearsParticipated: number;
-//   awardNum: number;
-// }
-
 // https://www.thebluealliance.com/api/v3/team/frc4188
 interface TBATeamData {
   key: string;
@@ -283,10 +271,12 @@ export const getSingleTeamData = async (
       teamNum: teamNum,
       teamName: data1.nickname,
       area: data4_,
+      areaRank: data5.district_rank,
       rookieYear: data1.rookie_year,
       numYearsParticipating: data3.length,
       unitlessEPA: data5.epa.unitless,
       epaRank: data5.epa.ranks.district.rank,
+      totalNumTeams: data5.epa.ranks.district.team_count,
       awardNum: data2.length,
     };
 
@@ -386,7 +376,7 @@ export const getAreaTeamData = async (
             `The Statbotics API responded with status code: ${response2.status}`,
           );
         }
-        curPulledTeams = await response2.json();
+        curPulledTeams = (await response2.json()) as StatboticsTeamYearData[];
         regionalTeams =
           offset == 0 ? curPulledTeams : [...regionalTeams, ...curPulledTeams];
         offset += 1000;
@@ -422,61 +412,28 @@ export const getAreaTeamData = async (
       }
 
       return res.status(200).json(returnableData);
-    } else if (area === "all") {
-      let offset = 0;
-      let regionalTeams: StatboticsTeamYearData[] = [];
-      let curPulledTeams: StatboticsTeamYearData[];
-      do {
-        const response =
-          offset == 0
-            ? await fetch("https://api.statbotics.io/v3/team_years?year=2026", {
-                method: "GET",
-                headers: {
-                  accept: "application/json",
-                },
-              })
-            : await fetch(
-                `https://api.statbotics.io/v3/team_years?year=2026&offset=${offset}`,
-                {
-                  method: "GET",
-                  headers: {
-                    accept: "application/json",
-                  },
-                },
-              );
-        if (!response.ok) {
-          throw new Error(
-            `The Statbotics API responded with status code: ${response.status}`,
-          );
-        }
-        curPulledTeams = await response.json();
-        regionalTeams =
-          offset == 0 ? curPulledTeams : [...regionalTeams, ...curPulledTeams];
-        offset += 1000;
-      } while (curPulledTeams.length >= 1000);
+    } else {
+      //For everything except area rank
+      const response1 = await fetch(
+        `https://api.statbotics.io/v3/team_years?year=2026&district=${area}`,
+        {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+          },
+        },
+      );
 
-      const data = [];
-      for (let i = 0; i < regionalTeams.length; i++) {
-        if (!regionalTeams[i].district && regionalTeams[i].record.count !== 0) {
-          data.push({
-            teamNum: regionalTeams[i].team,
-            teamName: regionalTeams[i].name,
-            rookieYear: regionalTeams[i].rookie_year,
-            unitlessEPA: regionalTeams[i].epa.unitless,
-            epaRank: regionalTeams[i].epa.ranks.district,
-          });
-        }
+      if (!response1.ok) {
+        throw new Error(
+          `The Statbotics API responded with status code: ${response1.status}`,
+        );
       }
 
-      console.log(data.length);
-      console.log(data);
-      //TODO: make this return statement actually return something
-      return res.status(400);
-    } else {
-      //For team num, team name, rookie year
-      const response1 = await fetch(
-        `https://www.thebluealliance.com/api/v3/district/2026${area}/teams
-`,
+      const data1 = (await response1.json()) as StatboticsTeamYearData[];
+
+      const response2 = await fetch(
+        `https://www.thebluealliance.com/api/v3/district/2026${area}/rankings`,
         {
           method: "GET",
           headers: {
@@ -486,18 +443,32 @@ export const getAreaTeamData = async (
         },
       );
 
-      if (!response1.ok) {
+      if (!response2.ok) {
         throw new Error(
-          `The TBA API responded with status code ${response1.status}`,
+          `The TBA API responded with status code ${response2.status}`,
         );
       }
 
-      const data1 = (await response1.json()) as TBATeamData[];
-      const data1_ = data1.sort((a, b) => a.team_number - b.team_number);
+      const data2 = (await response2.json()) as TBAAreaData[];
+      const data2_ = data2.sort(
+        (a, b) =>
+          parseInt(a.team_key.replace(/\D/g, "")) -
+          parseInt(b.team_key.replace(/\D/g, "")),
+      );
 
-      // console.log(data1_);
+      const returnableData = [];
+      for (let i = 0; i < data1.length; i++) {
+        returnableData.push({
+          teamNum: data1[i].team,
+          teamName: data1[i].name,
+          rookieYear: data1[i].rookie_year,
+          unitlessEPA: data1[i].epa.unitless,
+          epaRank: data1[i].epa.ranks.district.rank,
+          areaRank: data2_[i].rank,
+        });
+      }
 
-      return res.status(200).json(data1_);
+      return res.status(200).json(returnableData);
     }
   } catch (error: any) {
     console.error(error);
@@ -506,15 +477,3 @@ export const getAreaTeamData = async (
       .json({ error: "There was an issue with the server." });
   }
 };
-
-// export const getAllAreaTeamData = async (
-//   req: Request<MultiTeamFetchParams>,
-//   res: Response,
-// ): Promise<Response> => {
-//   const area = req.query.district;
-//   console.log(area);
-
-//   if (!area) {
-//     return res.status(400).json({ error: "Please input an area parameter." });
-//   }
-// };

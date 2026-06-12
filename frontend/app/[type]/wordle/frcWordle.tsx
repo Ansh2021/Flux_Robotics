@@ -77,6 +77,7 @@ export default function FRCWordle() {
             <FRCdleTable
               forceUpdateTable={forceUpdateTable}
               frcSelectedArea={frcSelectedArea}
+              frcSelectedDifficulty={frcSelectedDifficulty}
               updateArea={updateFRCAreaForTable}
               isModalVisible={frcModalVisible}
             />
@@ -96,7 +97,7 @@ export default function FRCWordle() {
           />
           <button
             onClick={() => {
-              if (!(frcSelectedArea || frcSelectedDifficulty)) {
+              if (!frcSelectedArea || !frcSelectedDifficulty) {
                 insufficientInfo();
                 return;
               }
@@ -325,8 +326,10 @@ take the last entry and if it is not of the cur year, they're in a regional)*/
 
 interface NewTeamRow {
   area: string;
+  areaRank: number;
   awardNum: number;
   epaRank: number;
+  totalNumTeams: number;
   numYearsParticipating: number;
   rookieYear: number;
   teamName: string;
@@ -360,33 +363,39 @@ const AreaCodeLookUp: AreaDictionary = {
 function FRCdleTable({
   forceUpdateTable,
   frcSelectedArea,
+  frcSelectedDifficulty,
   updateArea,
   isModalVisible,
 }: {
   forceUpdateTable: number;
   frcSelectedArea: (typeof frcAreas)[number] | null;
+  frcSelectedDifficulty: (typeof frcDifficulties)[number] | null;
   updateArea: number;
   isModalVisible: boolean;
 }) {
-  // console.log(frcSelectedArea?.name === "All");
-  // console.log(frcSelectedArea?.name);
-
-  const [newTeamInfo, setNewTeamInfo] = useState<NewTeamRow>();
   const [guessInput, setGuessInput] = useState("");
   const [updateTableWithClick, setUpdateTableWithClick] = useState(0);
-  const [frcAreaData, setFRCAreaData] = useState({});
-  const [allFRCAreaData, setAllFRCAreaData] = useState({});
-  const [regionalFRCAreaData, setRegionalFRCAreaData] = useState({});
-  const [lastRequestedArea, setLastRequestedArea] = useState("");
 
+  const [frcAreaData, setFRCAreaData] = useState([]);
+  const [allFRCAreaData, setAllFRCAreaData] = useState([]);
+  const [regionalFRCAreaData, setRegionalFRCAreaData] = useState([]);
+  const [lastRequestedArea, setLastRequestedArea] = useState("");
+  const [lastRequestedDifficulty, setLastRequestedDifficulty] = useState("");
+  const [isAreaRequestLoading, setIsAreaRequestLoading] = useState(false);
   const canGetAreaData = useRef(false);
+
+  const [requestFailed, setRequestFailed] = useState(false);
+
+  const [randomTeam, setRandomTeam] = useState("");
+
+  const [tableRows, setTableRows] = useState<NewTeamRow[]>([]);
 
   useEffect(() => {
     async function getSingleFRCTeamData(teamNum: number) {
       try {
-        // console.log(
-        //   `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
-        // );
+        if (isAreaRequestLoading) {
+          return;
+        }
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
         );
@@ -397,8 +406,7 @@ function FRCdleTable({
 
         const data = await res.json();
         console.log(data);
-        setNewTeamInfo(data);
-        // return data;
+        setTableRows([...tableRows, data]);
       } catch (error: any) {
         console.error(error);
         errorToast(
@@ -411,29 +419,297 @@ function FRCdleTable({
     }
 
     if (guessInput) {
-      getSingleFRCTeamData(parseInt(guessInput));
+      toast.promise(
+        getSingleFRCTeamData(parseInt(guessInput)),
+        {
+          pending: "Fetching team data...",
+          success: "Team fetched successfully",
+          error: "Team data failed to fetch",
+        },
+        {
+          theme: "dark",
+          hideProgressBar: false,
+          pauseOnHover: false,
+          draggable: true,
+          progress: undefined,
+          transition: Bounce,
+          autoClose: 1000,
+        },
+      );
     }
   }, [updateTableWithClick]);
 
   useEffect(() => {
     async function getAreaFRCData(area: string) {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=${area}`,
-        );
+        setRequestFailed(false);
+        setIsAreaRequestLoading(true);
+        if (area !== "all") {
+          if (
+            (area === "regionals" && regionalFRCAreaData.length === 0) ||
+            area !== "regionals"
+          ) {
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=${area}`,
+            );
 
-        if (!res.ok) {
-          throw new Error(`Error status: ${res.status}`);
+            if (!res.ok) {
+              throw new Error(`Error status: ${res.status}`);
+            }
+
+            const data = await res.json();
+            console.log(data);
+            if (area === "regionals") {
+              setRegionalFRCAreaData(data);
+              return;
+            } else {
+              setFRCAreaData(data);
+              return;
+            }
+          } else {
+            return;
+          }
+        } else if (allFRCAreaData.length === 0) {
+          let resCA;
+          if (lastRequestedArea !== "ca") {
+            resCA = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=ca`,
+            );
+
+            if (!resCA.ok) {
+              throw new Error(`Error status: ${resCA.status}`);
+            }
+          }
+
+          const dataCA =
+            lastRequestedArea !== "ca" ? await resCA.json() : frcAreaData;
+
+          let resFCH;
+          if (lastRequestedArea !== "fch") {
+            resFCH = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fch`,
+            );
+
+            if (!resFCH.ok) {
+              throw new Error(`Error status: ${resFCH.status}`);
+            }
+          }
+
+          const dataFCH =
+            lastRequestedArea !== "fch" ? await resFCH.json() : frcAreaData;
+
+          let resFIM;
+          if (lastRequestedArea !== "fim") {
+            resFIM = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fim`,
+            );
+
+            if (!resFIM.ok) {
+              throw new Error(`Error status: ${resFIM.status}`);
+            }
+          }
+
+          const dataFIM =
+            lastRequestedArea !== "fim" ? await resFIM.json() : frcAreaData;
+
+          let resFIN;
+          if (lastRequestedArea !== "fin") {
+            resFIN = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fin`,
+            );
+
+            if (!resFIN.ok) {
+              throw new Error(`Error status: ${resFIN.status}`);
+            }
+          }
+
+          const dataFIN =
+            lastRequestedArea !== "fin" ? await resFIN.json() : frcAreaData;
+
+          let resFIT;
+          if (lastRequestedArea !== "fit") {
+            resFIT = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fit`,
+            );
+
+            if (!resFIT.ok) {
+              throw new Error(`Error status: ${resFIT.status}`);
+            }
+          }
+
+          const dataFIT =
+            lastRequestedArea !== "fit" ? await resFIT.json() : frcAreaData;
+
+          let resFMA;
+          if (lastRequestedArea !== "fma") {
+            resFMA = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fma`,
+            );
+
+            if (!resFMA.ok) {
+              throw new Error(`Error status: ${resFMA.status}`);
+            }
+          }
+
+          const dataFMA =
+            lastRequestedArea !== "fma" ? await resFMA.json() : frcAreaData;
+
+          let resFNC;
+          if (lastRequestedArea !== "fnc") {
+            resFNC = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fnc`,
+            );
+
+            if (!resFNC.ok) {
+              throw new Error(`Error status: ${resFNC.status}`);
+            }
+          }
+
+          const dataFNC =
+            lastRequestedArea !== "fnc" ? await resFNC.json() : frcAreaData;
+
+          let resFSC;
+          if (lastRequestedArea !== "fsc") {
+            resFSC = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=fsc`,
+            );
+
+            if (!resFSC.ok) {
+              throw new Error(`Error status: ${resFSC.status}`);
+            }
+          }
+
+          const dataFSC =
+            lastRequestedArea !== "fsc" ? await resFSC.json() : frcAreaData;
+
+          let resISR;
+          if (lastRequestedArea !== "isr") {
+            resISR = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=isr`,
+            );
+
+            if (!resISR.ok) {
+              throw new Error(`Error status: ${resISR.status}`);
+            }
+          }
+
+          const dataISR =
+            lastRequestedArea !== "isr" ? await resISR.json() : frcAreaData;
+
+          let resNE;
+          if (lastRequestedArea !== "ne") {
+            resNE = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=ne`,
+            );
+
+            if (!resNE.ok) {
+              throw new Error(`Error status: ${resNE.status}`);
+            }
+          }
+
+          const dataNE =
+            lastRequestedArea !== "ne" ? await resNE.json() : frcAreaData;
+
+          let resONT;
+          if (lastRequestedArea !== "ont") {
+            resONT = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=ont`,
+            );
+
+            if (!resONT.ok) {
+              throw new Error(`Error status: ${resONT.status}`);
+            }
+          }
+
+          const dataONT =
+            lastRequestedArea !== "ont" ? await resONT.json() : frcAreaData;
+
+          let resPCH;
+          if (lastRequestedArea !== "pch") {
+            resPCH = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=pch`,
+            );
+
+            if (!resPCH.ok) {
+              throw new Error(`Error status: ${resPCH.status}`);
+            }
+          }
+
+          const dataPCH =
+            lastRequestedArea !== "pch" ? await resPCH.json() : frcAreaData;
+
+          let resPNW;
+          if (lastRequestedArea !== "pnw") {
+            resPNW = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=pnw`,
+            );
+
+            if (!resPNW.ok) {
+              throw new Error(`Error status: ${resPNW.status}`);
+            }
+          }
+
+          const dataPNW =
+            lastRequestedArea !== "pnw" ? await resPNW.json() : frcAreaData;
+
+          let resWIN;
+          if (lastRequestedArea !== "win") {
+            resWIN = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=win`,
+            );
+
+            if (!resWIN.ok) {
+              throw new Error(`Error status: ${resWIN.status}`);
+            }
+          }
+
+          const dataWIN =
+            lastRequestedArea !== "win" ? await resWIN.json() : frcAreaData;
+
+          let resRegionals;
+          if (lastRequestedArea !== "regionals") {
+            resRegionals = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/multiple?district=regionals`,
+            );
+
+            if (!resRegionals.ok) {
+              throw new Error(`Error status: ${resRegionals.status}`);
+            }
+          }
+
+          const dataRegionals =
+            lastRequestedArea !== "regionals"
+              ? await resRegionals.json()
+              : regionalFRCAreaData;
+
+          const allData = [
+            ...dataCA,
+            ...dataFCH,
+            ...dataFIM,
+            ...dataFIN,
+            ...dataFIT,
+            ...dataFMA,
+            ...dataFNC,
+            ...dataFSC,
+            ...dataISR,
+            ...dataNE,
+            ...dataONT,
+            ...dataPCH,
+            ...dataPNW,
+            ...dataWIN,
+            ...dataRegionals,
+          ];
+
+          const useableData = allData.sort((a, b) => a.teamNum - b.teamNum);
+          setAllFRCAreaData(useableData);
+          console.log(useableData);
         }
-
-        const data = await res.json();
-        console.log(data);
-        setFRCAreaData(data);
       } catch (error: any) {
         console.error(error);
-        // errorToast(
-        //   "Internal server error. Make sure you inputted a valid team.",
-        // );
+        setRequestFailed(true);
+        errorToast("Internal server error.");
+      } finally {
+        setIsAreaRequestLoading(false);
       }
     }
 
@@ -441,16 +717,42 @@ function FRCdleTable({
       canGetAreaData.current = true;
 
       if (lastRequestedArea !== AreaCodeLookUp[frcSelectedArea.name]) {
-        getAreaFRCData(AreaCodeLookUp[frcSelectedArea.name]);
-        setLastRequestedArea(AreaCodeLookUp[frcSelectedArea.name]);
+        toast.promise(
+          getAreaFRCData(AreaCodeLookUp[frcSelectedArea.name]),
+          {
+            pending: "Fetching area data...",
+            success: "Area fetched successfully",
+            error: "Area data failed to fetch",
+          },
+          {
+            theme: "dark",
+            hideProgressBar: false,
+            pauseOnHover: false,
+            draggable: true,
+            progress: undefined,
+            transition: Bounce,
+          },
+        );
+
+        if (!requestFailed) {
+          setLastRequestedArea(AreaCodeLookUp[frcSelectedArea.name]);
+        }
       } else {
         console.log("I will not be refetching the same district.");
         console.log("Stop trying to flag my TBA API key.");
       }
     }
-    // console.log(AreaCodeLookUp[frcSelectedArea.name]);
-    // getAreaFRCData(AreaCodeLookUp[frcSelectedArea.name]);
-    // getAreaFRCData("ca");
+
+    if (lastRequestedDifficulty !== frcSelectedDifficulty.type) {
+      setLastRequestedDifficulty(frcSelectedDifficulty.type);
+    }
+
+    if (
+      lastRequestedArea !== frcSelectedArea.name ||
+      lastRequestedDifficulty !== frcSelectedDifficulty.type
+    ) {
+      setTableRows([]);
+    }
   }, [updateArea]);
 
   useEffect(() => {
@@ -490,9 +792,6 @@ function FRCdleTable({
         <button
           onClick={() => {
             setUpdateTableWithClick((prev) => prev + 1);
-            // setTimeout(() => {
-            //   setGuessInput("");
-            // }, 1000);
           }}
           className="group flex rounded-full items-center justify-center h-10 w-20 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300"
         >
@@ -516,6 +815,11 @@ function FRCdleTable({
                   Area
                 </th>
               )}
+              {frcSelectedArea?.name !== "All" && (
+                <th className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
+                  Area Rank
+                </th>
+              )}
               <th className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
                 Rookie Year
               </th>
@@ -534,36 +838,42 @@ function FRCdleTable({
             </tr>
           </thead>
           <tbody className="text-center">
-            {newTeamInfo && (
-              <tr>
-                <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
-                  {newTeamInfo?.teamNum}
-                </td>
-                <td className="border-2 border-[#0c3c64] p-1 w-fit max-w-70 max-sm:text-sm">
-                  {newTeamInfo?.teamName}
-                </td>
-                {frcSelectedArea?.name === "All" && (
+            {tableRows &&
+              tableRows.map((row) => (
+                <tr key={row.teamNum}>
                   <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
-                    {newTeamInfo?.area}
+                    {row.teamNum}
                   </td>
-                )}
-                <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
-                  {newTeamInfo?.rookieYear}
-                </td>
-                <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
-                  {newTeamInfo?.numYearsParticipating}
-                </td>
-                <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
-                  {newTeamInfo?.unitlessEPA}
-                </td>
-                <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
-                  {newTeamInfo?.epaRank}
-                </td>
-                <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
-                  {newTeamInfo?.awardNum}
-                </td>
-              </tr>
-            )}
+                  <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
+                    {row.teamName}
+                  </td>
+                  {frcSelectedArea?.name === "All" && (
+                    <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
+                      {row.area}
+                    </td>
+                  )}
+                  {frcSelectedArea?.name !== "All" && (
+                    <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
+                      {row.areaRank}/{row.totalNumTeams}
+                    </td>
+                  )}
+                  <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
+                    {row.rookieYear}
+                  </td>
+                  <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
+                    {row.numYearsParticipating}
+                  </td>
+                  <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
+                    {row.unitlessEPA}
+                  </td>
+                  <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
+                    {row.epaRank}/{row.totalNumTeams}
+                  </td>
+                  <td className="border-2 border-[#0c3c64] p-1 max-sm:text-sm">
+                    {row.awardNum}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
