@@ -276,6 +276,7 @@ export const getSingleTeamData = async (
       numYearsParticipating: data3.length,
       unitlessEPA: data5.epa.unitless,
       epaRank: data5.epa.ranks.district.rank,
+      worldEPARank: data5.epa.ranks.total.rank,
       totalNumTeams: data5.epa.ranks.district.team_count,
       awardNum: data2.length,
     };
@@ -395,6 +396,8 @@ export const getAreaTeamData = async (
             rookieYear: regionalTeams[i].rookie_year,
             unitlessEPA: regionalTeams[i].epa.unitless,
             epaRank: regionalTeams[i].epa.ranks.district.rank,
+            worldEPARank: regionalTeams[i].epa.ranks.total.rank,
+            totalNumTeams: regionalTeams[i].epa.ranks.district.team_count,
           });
         }
       }
@@ -407,7 +410,9 @@ export const getAreaTeamData = async (
           rookieYear: data2[i].rookieYear,
           unitlessEPA: data2[i].unitlessEPA,
           epaRank: data2[i].epaRank,
+          worldEPARank: data2[i].worldEPARank,
           areaRank: data1_[i].rank,
+          totalNumTeams: data2[i].totalNumTeams,
         });
       }
 
@@ -464,6 +469,7 @@ export const getAreaTeamData = async (
           rookieYear: data1[i].rookie_year,
           unitlessEPA: data1[i].epa.unitless,
           epaRank: data1[i].epa.ranks.district.rank,
+          worldEPARank: data1[i].epa.ranks.total.rank,
           areaRank: data2_[i].rank,
         });
       }
