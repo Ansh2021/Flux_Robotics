@@ -401,7 +401,7 @@ function FRCdleTable({
   const [guessInput, setGuessInput] = useState("");
   const [updateTableWithClick, setUpdateTableWithClick] = useState(0);
 
-  const [frcAreaData, setFRCAreaData] = useState<[AreaData[]]>([[]]);
+  const [frcAreaData, setFRCAreaData] = useState<AreaData[][]>([]);
   const [allFRCAreaData, setAllFRCAreaData] = useState<AreaData[]>([]);
   const [regionalFRCAreaData, setRegionalFRCAreaData] = useState<AreaData[]>(
     [],
@@ -414,167 +414,43 @@ function FRCdleTable({
   const [areaRequestFailed, setAreaRequestFailed] = useState<Boolean[]>([]);
 
   const [randomTeam, setRandomTeam] = useState<NewTeam>();
-  const [allRequestedTeams, setAllRequestedTeams] = useState<Number[]>([]);
+  const [updateRandomTeam, setUpdateRandomTeam] = useState(0);
+  const [allRequestedTeams, setAllRequestedTeams] = useState<number[]>([]);
   const [guessResults, setGuessResults] = useState<GuessResults[]>([]);
 
   const [tableRows, setTableRows] = useState<NewTeam[]>([]);
 
   useEffect(() => {
-    //TODO: uncomment when statbotics gets back up
-    // async function getSingleFRCTeamData(teamNum: number) {
-    //   try {
-    //     if (isAreaRequestLoading) {
-    //       errorToast("Please wait for the area data to load");
-    //       return;
-    //     }
-    //     if (allRequestedTeams.includes(teamNum)) {
-    //       throw new Error("This team has already been guessed");
-    //     }
-    //     const res = await fetch(
-    //       `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
-    //     );
-
-    //     if (!res.ok) {
-    //       throw new Error(`Error status: ${res.status}`);
-    //     }
-
-    //     const data = await res.json();
-    //     console.log(data);
-    //     setTableRows([...tableRows, data]);
-    //     setAllRequestedTeams([...allRequestedTeams, teamNum]);
-    //   } catch (error: any) {
-    //     console.error(error);
-    //     throw new Error(error);
-    //     // errorToast(
-    //     //   "Internal server error. Make sure you inputted a valid team.",
-    //     // );
-    //   } finally {
-    //     setGuessInput("");
-    //   }
-    // }
-
-    //just for testing while statbotics is down
     async function getSingleFRCTeamData(teamNum: number) {
-      if (allRequestedTeams.includes(teamNum)) {
-        throw new Error("Team has already been guessed");
-      }
-      const data: NewTeam[] = [];
-      if (teamNum === 4188) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 5,
-          awardNum: 7,
-          epaRank: 7,
-          totalNumTeams: 74,
-          numYearsParticipating: 15,
-          rookieYear: 2012,
-          teamName: "Columbus Space Program",
-          teamNum: 4188,
-          unitlessEPA: 1727,
-          worldEPARank: 352,
-        });
-      } else if (teamNum === 1771) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 2,
-          awardNum: 5,
-          epaRank: 3,
-          totalNumTeams: 74,
-          numYearsParticipating: 20,
-          rookieYear: 2006,
-          teamName: "North Gwinnett Robotics",
-          teamNum: 1771,
-          unitlessEPA: 1881,
-          worldEPARank: 121,
-        });
-      } else if (teamNum === 1833) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 1,
-          awardNum: 7,
-          epaRank: 1,
-          totalNumTeams: 74,
-          numYearsParticipating: 2,
-          rookieYear: 2006,
-          teamName: "Team BEAN",
-          teamNum: 1833,
-          unitlessEPA: 2006,
-          worldEPARank: 35,
-        });
-      } else if (teamNum === 1002) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 4,
-          awardNum: 6,
-          epaRank: 2,
-          totalNumTeams: 74,
-          numYearsParticipating: 24,
-          rookieYear: 2003,
-          teamName: "CircuitRunners Robotics",
-          teamNum: 1002,
-          unitlessEPA: 1890,
-          worldEPARank: 112,
-        });
-      } else if (teamNum === 6919) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 3,
-          awardNum: 6,
-          epaRank: 5,
-          totalNumTeams: 74,
-          numYearsParticipating: 9,
-          rookieYear: 2018,
-          teamName: "The Commodores",
-          teamNum: 6919,
-          unitlessEPA: 1783,
-          worldEPARank: 250,
-        });
-      } else if (teamNum === 1261) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 8,
-          awardNum: 2,
-          epaRank: 4,
-          totalNumTeams: 74,
-          numYearsParticipating: 23,
-          rookieYear: 2004,
-          teamName: "Robo Lions Team1261",
-          teamNum: 1261,
-          unitlessEPA: 1833,
-          worldEPARank: 179,
-        });
-      } else if (teamNum === 2974) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 6,
-          awardNum: 7,
-          epaRank: 6,
-          totalNumTeams: 74,
-          numYearsParticipating: 19,
-          rookieYear: 2009,
-          teamName: "Walton Robotics",
-          teamNum: 2974,
-          unitlessEPA: 1775,
-          worldEPARank: 265,
-        });
-      } else if (teamNum === 4189) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 7,
-          awardNum: 2,
-          epaRank: 8,
-          totalNumTeams: 74,
-          numYearsParticipating: 15,
-          rookieYear: 2012,
-          teamName: "Chargers",
-          teamNum: 4189,
-          unitlessEPA: 1718,
-          worldEPARank: 376,
-        });
-      }
+      try {
+        if (isAreaRequestLoading) {
+          errorToast("Please wait for the area data to load");
+          return;
+        }
+        if (allRequestedTeams.includes(teamNum)) {
+          throw new Error("This team has already been guessed");
+        }
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
+        );
 
-      setTableRows([...tableRows, data[0]]);
-      setAllRequestedTeams([...allRequestedTeams, teamNum]);
+        if (!res.ok) {
+          throw new Error(`Error status: ${res.status}`);
+        }
+
+        const data = (await res.json()) as NewTeam;
+        console.log(data);
+        setTableRows([...tableRows, data]);
+        setAllRequestedTeams([...allRequestedTeams, teamNum]);
+      } catch (error: any) {
+        console.error(error);
+        throw new Error(error);
+        // errorToast(
+        //   "Internal server error. Make sure you inputted a valid team.",
+        // );
+      } finally {
+        setGuessInput("");
+      }
     }
 
     if (guessInput) {
@@ -919,22 +795,26 @@ function FRCdleTable({
       canGetAreaData.current = true;
 
       if (!lastRequestedArea.includes(AreaCodeLookUp[frcSelectedArea.name])) {
-        toast.promise(
-          getAreaFRCData(AreaCodeLookUp[frcSelectedArea.name]),
-          {
-            pending: "Fetching area data...",
-            success: "Area fetched successfully",
-            error: "Area data failed to fetch",
-          },
-          {
-            theme: "dark",
-            hideProgressBar: false,
-            pauseOnHover: false,
-            draggable: true,
-            progress: undefined,
-            transition: Bounce,
-          },
-        );
+        toast
+          .promise(
+            getAreaFRCData(AreaCodeLookUp[frcSelectedArea.name]),
+            {
+              pending: "Fetching area data...",
+              success: "Area fetched successfully",
+              error: "Area data failed to fetch",
+            },
+            {
+              theme: "dark",
+              hideProgressBar: false,
+              pauseOnHover: false,
+              draggable: true,
+              progress: undefined,
+              transition: Bounce,
+            },
+          )
+          .then(() => {
+            setUpdateRandomTeam((cur) => cur + 1);
+          });
 
         if (!areaRequestFailed) {
           setLastRequestedArea([
@@ -946,21 +826,23 @@ function FRCdleTable({
         console.log("I will not be refetching the same district.");
         console.log("Stop trying to flag my TBA API key.");
       }
-    }
 
-    if (lastRequestedDifficulty !== frcSelectedDifficulty.type) {
-      setLastRequestedDifficulty(frcSelectedDifficulty.type);
-    }
+      if (lastRequestedDifficulty !== frcSelectedDifficulty.type) {
+        setLastRequestedDifficulty(frcSelectedDifficulty.type);
+      }
 
-    if (
-      lastRequestedArea[lastRequestedArea.length - 1] !==
-        frcSelectedArea.name ||
-      lastRequestedDifficulty !== frcSelectedDifficulty.type
-    ) {
-      setTableRows([]);
-      setAllRequestedTeams([]);
+      if (
+        lastRequestedArea[lastRequestedArea.length - 1] !==
+          frcSelectedArea.name ||
+        lastRequestedDifficulty !== frcSelectedDifficulty.type
+      ) {
+        setTableRows([]);
+        setAllRequestedTeams([]);
+      }
     }
+  }, [updateArea]);
 
+  useEffect(() => {
     const difficultyCalculations: {
       teamNum: number;
       difficultyCalc: number;
@@ -992,7 +874,7 @@ function FRCdleTable({
         });
       }
     } else {
-      for (let i = 0; i < regionalFRCAreaData.length; i++) {
+      for (let i = 0; i < frcAreaData[frcAreaData.length - 1]?.length; i++) {
         const difficultyCalc =
           (frcAreaData[lastRequestedArea.length - 1][i].totalNumTeams -
             (frcAreaData[lastRequestedArea.length - 1][i].epaRank - 1) +
@@ -1008,7 +890,7 @@ function FRCdleTable({
       }
     }
 
-    const validTeams = [];
+    const validTeams: number[] = [];
     for (let i = 0; i < difficultyCalculations.length; i++) {
       const difficultyCalc = difficultyCalculations[i].difficultyCalc;
       const highestValue = difficultyCalculations[i].highestValue;
@@ -1031,153 +913,52 @@ function FRCdleTable({
       }
     }
 
-    //TODO: uncomment out when statbotics is back online
-    // async function getRandomTeamData(teamNum: number) {
-    //   try {
-    //     const res = await fetch(
-    //       `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
-    //     );
-
-    //     if (!res.ok) {
-    //       throw new Error(`Error status: ${res.status}`);
-    //     }
-
-    //     const data = await res.json();
-    //     console.log(data);
-    //     setRandomTeam(data);
-    //   } catch (error: any) {
-    //     console.error(error);
-    //   }
-    // }
-
-    // if (validTeams.length !== 0) {
-    //   getRandomTeamData(validTeams[Math.floor(Math.random() * validTeams.length)]);
-    // } else {
-    //   errorToast("Failed to fetch guessable team");
-    // }
-
     async function getRandomTeamData(teamNum: number) {
-      const data: NewTeam[] = [];
-      if (teamNum === 4188) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 5,
-          awardNum: 7,
-          epaRank: 7,
-          totalNumTeams: 74,
-          numYearsParticipating: 15,
-          rookieYear: 2012,
-          teamName: "Columbus Space Program",
-          teamNum: 4188,
-          unitlessEPA: 1727,
-          worldEPARank: 352,
-        });
-      } else if (teamNum === 1771) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 2,
-          awardNum: 5,
-          epaRank: 3,
-          totalNumTeams: 74,
-          numYearsParticipating: 20,
-          rookieYear: 2006,
-          teamName: "North Gwinnett Robotics",
-          teamNum: 1771,
-          unitlessEPA: 1881,
-          worldEPARank: 121,
-        });
-      } else if (teamNum === 1833) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 1,
-          awardNum: 7,
-          epaRank: 1,
-          totalNumTeams: 74,
-          numYearsParticipating: 2,
-          rookieYear: 2006,
-          teamName: "Team BEAN",
-          teamNum: 1833,
-          unitlessEPA: 2006,
-          worldEPARank: 35,
-        });
-      } else if (teamNum === 1002) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 4,
-          awardNum: 6,
-          epaRank: 2,
-          totalNumTeams: 74,
-          numYearsParticipating: 24,
-          rookieYear: 2003,
-          teamName: "CircuitRunners Robotics",
-          teamNum: 1002,
-          unitlessEPA: 1890,
-          worldEPARank: 112,
-        });
-      } else if (teamNum === 6919) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 3,
-          awardNum: 6,
-          epaRank: 5,
-          totalNumTeams: 74,
-          numYearsParticipating: 9,
-          rookieYear: 2018,
-          teamName: "The Commodores",
-          teamNum: 6919,
-          unitlessEPA: 1783,
-          worldEPARank: 250,
-        });
-      } else if (teamNum === 1261) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 8,
-          awardNum: 2,
-          epaRank: 4,
-          totalNumTeams: 74,
-          numYearsParticipating: 23,
-          rookieYear: 2004,
-          teamName: "Robo Lions Team1261",
-          teamNum: 1261,
-          unitlessEPA: 1833,
-          worldEPARank: 179,
-        });
-      } else if (teamNum === 2974) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 6,
-          awardNum: 7,
-          epaRank: 6,
-          totalNumTeams: 74,
-          numYearsParticipating: 19,
-          rookieYear: 2009,
-          teamName: "Walton Robotics",
-          teamNum: 2974,
-          unitlessEPA: 1775,
-          worldEPARank: 265,
-        });
-      } else if (teamNum === 4189) {
-        data.push({
-          area: "Peachtree",
-          areaRank: 7,
-          awardNum: 2,
-          epaRank: 8,
-          totalNumTeams: 74,
-          numYearsParticipating: 15,
-          rookieYear: 2012,
-          teamName: "Chargers",
-          teamNum: 4189,
-          unitlessEPA: 1718,
-          worldEPARank: 376,
-        });
-      }
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
+        );
 
-      setRandomTeam(data[0]);
+        if (!res.ok) {
+          throw new Error(`Error status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log(data);
+        setRandomTeam(data);
+      } catch (error: any) {
+        console.error(error);
+      }
     }
 
-    const valTeams = [4188, 1261, 1771, 1833, 2974, 1002, 4189, 6919];
-    getRandomTeamData(valTeams[Math.floor(Math.random() * valTeams.length)]);
-  }, [updateArea]);
+    if (validTeams.length !== 0) {
+      toast.promise(
+        getRandomTeamData(
+          validTeams[Math.floor(Math.random() * validTeams.length)],
+        ),
+        {
+          pending: "Fetching random team data...",
+          success: "Random team fetched successfully",
+          error: "Failed to fetch random team",
+        },
+        {
+          theme: "dark",
+          hideProgressBar: false,
+          pauseOnHover: false,
+          draggable: true,
+          progress: undefined,
+          transition: Bounce,
+          autoClose: 1000,
+        },
+      );
+      console.log("diff calc", difficultyCalculations);
+      console.log("valid teams", validTeams);
+    } else {
+      errorToast("Failed to fetch guessable team");
+      console.log("diff calc", difficultyCalculations);
+      console.log("valid teams", validTeams);
+    }
+  }, [setUpdateRandomTeam]);
 
   useEffect(() => {
     if (isModalVisible) {

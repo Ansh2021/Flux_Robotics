@@ -123,8 +123,6 @@ interface StatboticsTeamYearData {
     count: number;
     winrate: number;
   };
-  district_points: number;
-  district_rank: number;
   competing: {
     this_week: boolean;
     next_event_key: string;
@@ -246,8 +244,42 @@ export const getSingleTeamData = async (
     const data4_ =
       data4.length > 0 ? data4[data4.length - 1].display_name : "Regional";
 
+    const response5 =
+      data4.length > 0
+        ? await fetch(
+            `https://www.thebluealliance.com/api/v3/district/2026${data4[data4.length - 1].abbreviation}/rankings`,
+            {
+              method: "GET",
+              headers: {
+                "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+                accept: "application/json",
+              },
+            },
+          )
+        : await fetch(
+            `https://www.thebluealliance.com/api/v3/regional_advancement/2026/rankings`,
+            {
+              method: "GET",
+              headers: {
+                "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+                accept: "application/json",
+              },
+            },
+          );
+
+    if (!response5.ok) {
+      throw new Error(
+        `The TBA API responded with status code ${response5.status}`,
+      );
+    }
+
+    const data5 = (await response5.json()) as TBAAreaData[];
+    const data5_ = data5.find(
+      (data) => data.team_key === `frc${teamNum}`,
+    )?.rank;
+
     //for unitless epa and epa rank
-    const response5 = await fetch(
+    const response6 = await fetch(
       `https://api.statbotics.io/v3/team_year/${teamNum}/2026
 `,
       {
@@ -258,26 +290,26 @@ export const getSingleTeamData = async (
       },
     );
 
-    if (!response5.ok) {
+    if (!response6.ok) {
       throw new Error(
-        `The Statbotics API responded with status code ${response5.status}`,
+        `The Statbotics API responded with status code ${response6.status}`,
       );
     }
 
-    const data5 = (await response5.json()) as StatboticsTeamYearData;
+    const data6 = (await response6.json()) as StatboticsTeamYearData;
 
     //final, returnable data
     const returnData = {
       teamNum: teamNum,
       teamName: data1.nickname,
       area: data4_,
-      areaRank: data5.district_rank,
+      areaRank: data5_,
       rookieYear: data1.rookie_year,
       numYearsParticipating: data3.length,
-      unitlessEPA: data5.epa.unitless,
-      epaRank: data5.epa.ranks.district.rank,
-      worldEPARank: data5.epa.ranks.total.rank,
-      totalNumTeams: data5.epa.ranks.district.team_count,
+      unitlessEPA: data6.epa.unitless,
+      epaRank: data6.epa.ranks.district.rank,
+      worldEPARank: data6.epa.ranks.total.rank,
+      totalNumTeams: data6.epa.ranks.district.team_count,
       awardNum: data2.length,
     };
 
