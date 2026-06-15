@@ -414,7 +414,7 @@ function FRCdleTable({
   const [areaRequestFailed, setAreaRequestFailed] = useState<Boolean[]>([]);
 
   const [randomTeam, setRandomTeam] = useState<NewTeam>();
-  const [updateRandomTeam, setUpdateRandomTeam] = useState(0);
+  const canGetRandomTeam = useRef(false);
   const [allRequestedTeams, setAllRequestedTeams] = useState<number[]>([]);
   const [guessResults, setGuessResults] = useState<GuessResults[]>([]);
 
@@ -498,6 +498,13 @@ function FRCdleTable({
   useEffect(() => {
     async function getAreaFRCData(area: string) {
       try {
+        // if (
+        //   frcSelectedDifficulty.type === lastRequestedDifficulty ||
+        //   frcSelectedArea.name ===
+        //     lastRequestedArea[lastRequestedArea.length - 1]
+        // ) {
+        // throw new Error("Tried unnecessarily refetching area");
+
         setAreaRequestFailed([...areaRequestFailed, false]);
         setIsAreaRequestLoading(true);
         if (area !== "all") {
@@ -513,17 +520,13 @@ function FRCdleTable({
               throw new Error(`Error status: ${res.status}`);
             }
 
-            const data = await res.json();
+            const data = (await res.json()) as AreaData[];
             console.log(data);
             if (area === "regionals") {
               setRegionalFRCAreaData(data);
               return;
             } else {
-              setFRCAreaData((oldArray) => {
-                const newArray = oldArray;
-                oldArray.push(data);
-                return newArray;
-              });
+              setFRCAreaData((previousData) => [...previousData, data]);
               return;
             }
           } else {
@@ -777,6 +780,7 @@ function FRCdleTable({
           setAllFRCAreaData(useableData);
           console.log(useableData);
         }
+        // }
       } catch (error: any) {
         console.error(error);
         setAreaRequestFailed((oldRequestStatusArray) => {
@@ -794,39 +798,6 @@ function FRCdleTable({
     if (!canGetAreaData.current) {
       canGetAreaData.current = true;
 
-      if (!lastRequestedArea.includes(AreaCodeLookUp[frcSelectedArea.name])) {
-        toast
-          .promise(
-            getAreaFRCData(AreaCodeLookUp[frcSelectedArea.name]),
-            {
-              pending: "Fetching area data...",
-              success: "Area fetched successfully",
-              error: "Area data failed to fetch",
-            },
-            {
-              theme: "dark",
-              hideProgressBar: false,
-              pauseOnHover: false,
-              draggable: true,
-              progress: undefined,
-              transition: Bounce,
-            },
-          )
-          .then(() => {
-            setUpdateRandomTeam((cur) => cur + 1);
-          });
-
-        if (!areaRequestFailed) {
-          setLastRequestedArea([
-            ...lastRequestedArea,
-            AreaCodeLookUp[frcSelectedArea.name],
-          ]);
-        }
-      } else {
-        console.log("I will not be refetching the same district.");
-        console.log("Stop trying to flag my TBA API key.");
-      }
-
       if (lastRequestedDifficulty !== frcSelectedDifficulty.type) {
         setLastRequestedDifficulty(frcSelectedDifficulty.type);
       }
@@ -839,130 +810,176 @@ function FRCdleTable({
         setTableRows([]);
         setAllRequestedTeams([]);
       }
+
+      if (!lastRequestedArea.includes(AreaCodeLookUp[frcSelectedArea.name])) {
+        toast.promise(
+          getAreaFRCData(AreaCodeLookUp[frcSelectedArea.name]),
+          {
+            pending: "Fetching area data...",
+            success: "Area fetched successfully",
+            error: "Area data failed to fetch",
+          },
+          {
+            theme: "dark",
+            hideProgressBar: false,
+            pauseOnHover: false,
+            draggable: true,
+            progress: undefined,
+            transition: Bounce,
+            autoClose: 2000,
+          },
+        );
+
+        if (!areaRequestFailed[areaRequestFailed.length - 1]) {
+          setLastRequestedArea([
+            ...lastRequestedArea,
+            AreaCodeLookUp[frcSelectedArea.name],
+          ]);
+        }
+      } else {
+        console.log("I will not be refetching the same district.");
+        console.log("Stop trying to flag my TBA API key.");
+      }
     }
   }, [updateArea]);
 
   useEffect(() => {
-    const difficultyCalculations: {
-      teamNum: number;
-      difficultyCalc: number;
-      highestValue: number;
-    }[] = [];
+    if (
+      (frcAreaData &&
+        frcAreaData.length > 0 &&
+        AreaCodeLookUp[frcSelectedArea.name] !== "all" &&
+        AreaCodeLookUp[frcSelectedArea.name] !== "regionals") ||
+      (allFRCAreaData &&
+        allFRCAreaData.length > 0 &&
+        AreaCodeLookUp[frcSelectedArea.name] === "all") ||
+      (regionalFRCAreaData &&
+        regionalFRCAreaData.length > 0 &&
+        AreaCodeLookUp[frcSelectedArea.name] === "regionals")
+    ) {
+      const difficultyCalculations: {
+        teamNum: number;
+        difficultyCalc: number;
+        highestValue: number;
+      }[] = [];
 
-    if (AreaCodeLookUp[frcSelectedArea.name] === "all") {
-      for (let i = 0; i < allFRCAreaData.length; i++) {
-        const difficultyCalc =
-          allFRCAreaData.length - (allFRCAreaData[i].worldEPARank - 1);
-        difficultyCalculations.push({
-          teamNum: allFRCAreaData[i].teamNum,
-          difficultyCalc: difficultyCalc,
-          highestValue: allFRCAreaData.length,
-        });
-      }
-    } else if (AreaCodeLookUp[frcSelectedArea.name] === "regionals") {
-      for (let i = 0; i < regionalFRCAreaData.length; i++) {
-        const difficultyCalc =
-          (regionalFRCAreaData.length -
-            (regionalFRCAreaData[i].epaRank - 1) +
-            (regionalFRCAreaData.length -
-              (regionalFRCAreaData[i].areaRank - 1))) /
-          2;
-        difficultyCalculations.push({
-          teamNum: allFRCAreaData[i].teamNum,
-          difficultyCalc: difficultyCalc,
-          highestValue: regionalFRCAreaData.length,
-        });
-      }
-    } else {
-      for (let i = 0; i < frcAreaData[frcAreaData.length - 1]?.length; i++) {
-        const difficultyCalc =
-          (frcAreaData[lastRequestedArea.length - 1][i].totalNumTeams -
-            (frcAreaData[lastRequestedArea.length - 1][i].epaRank - 1) +
-            (frcAreaData[lastRequestedArea.length - 1][i].totalNumTeams -
-              (frcAreaData[lastRequestedArea.length - 1][i].areaRank - 1))) /
-          2;
-        difficultyCalculations.push({
-          teamNum: allFRCAreaData[i].teamNum,
-          difficultyCalc: difficultyCalc,
-          highestValue:
-            frcAreaData[lastRequestedArea.length - 1][i].totalNumTeams,
-        });
-      }
-    }
-
-    const validTeams: number[] = [];
-    for (let i = 0; i < difficultyCalculations.length; i++) {
-      const difficultyCalc = difficultyCalculations[i].difficultyCalc;
-      const highestValue = difficultyCalculations[i].highestValue;
-      if (
-        frcSelectedDifficulty.type === "Easy" &&
-        difficultyCalc > Math.floor((2 * highestValue) / 3)
-      ) {
-        validTeams.push(difficultyCalculations[i].teamNum);
-      } else if (
-        frcSelectedDifficulty.type === "Medium" &&
-        difficultyCalc < Math.floor((2 * highestValue) / 3) &&
-        difficultyCalc > Math.ceil(highestValue / 3)
-      ) {
-        validTeams.push(difficultyCalculations[i].teamNum);
-      } else if (
-        frcSelectedDifficulty.type === "Hard" &&
-        difficultyCalc < Math.ceil(highestValue / 3)
-      ) {
-        validTeams.push(difficultyCalculations[i].teamNum);
-      }
-    }
-
-    async function getRandomTeamData(teamNum: number) {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
-        );
-
-        if (!res.ok) {
-          throw new Error(`Error status: ${res.status}`);
+      if (AreaCodeLookUp[frcSelectedArea.name] === "all") {
+        for (let i = 0; i < allFRCAreaData.length; i++) {
+          const difficultyCalc =
+            allFRCAreaData.length - (allFRCAreaData[i].worldEPARank - 1);
+          difficultyCalculations.push({
+            teamNum: allFRCAreaData[i].teamNum,
+            difficultyCalc: difficultyCalc,
+            highestValue: allFRCAreaData.length,
+          });
         }
+      } else if (AreaCodeLookUp[frcSelectedArea.name] === "regionals") {
+        for (let i = 0; i < regionalFRCAreaData.length; i++) {
+          const difficultyCalc =
+            (regionalFRCAreaData.length -
+              (regionalFRCAreaData[i].epaRank - 1) +
+              (regionalFRCAreaData.length -
+                (regionalFRCAreaData[i].areaRank - 1))) /
+            2;
+          difficultyCalculations.push({
+            teamNum: regionalFRCAreaData[i].teamNum,
+            difficultyCalc: difficultyCalc,
+            highestValue: regionalFRCAreaData.length,
+          });
+        }
+      } else {
+        for (let i = 0; i < frcAreaData[frcAreaData.length - 1].length; i++) {
+          const difficultyCalc =
+            (frcAreaData[frcAreaData.length - 1].length -
+              (frcAreaData[frcAreaData.length - 1][i].epaRank - 1) +
+              (frcAreaData[frcAreaData.length - 1].length -
+                (frcAreaData[frcAreaData.length - 1][i].areaRank - 1))) /
+            2;
+          difficultyCalculations.push({
+            teamNum: frcAreaData[frcAreaData.length - 1][i].teamNum,
+            difficultyCalc: difficultyCalc,
+            highestValue: frcAreaData[frcAreaData.length - 1].length,
+          });
+        }
+      }
 
-        const data = await res.json();
-        console.log(data);
-        setRandomTeam(data);
-      } catch (error: any) {
-        console.error(error);
+      const validTeams: number[] = [];
+      for (let i = 0; i < difficultyCalculations.length; i++) {
+        const difficultyCalc = difficultyCalculations[i].difficultyCalc;
+        const highestValue = difficultyCalculations[i].highestValue;
+        if (
+          frcSelectedDifficulty.type === "Easy" &&
+          difficultyCalc > Math.floor(highestValue * 0.9)
+        ) {
+          validTeams.push(difficultyCalculations[i].teamNum);
+        } else if (
+          frcSelectedDifficulty.type === "Medium" &&
+          difficultyCalc > Math.ceil(highestValue * 0.45) &&
+          difficultyCalc < Math.floor(highestValue * 0.9)
+        ) {
+          validTeams.push(difficultyCalculations[i].teamNum);
+        } else if (
+          frcSelectedDifficulty.type === "Hard" &&
+          difficultyCalc < Math.ceil(highestValue * 0.45)
+        ) {
+          validTeams.push(difficultyCalculations[i].teamNum);
+        }
+      }
+
+      async function getRandomTeamData(teamNum: number) {
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/frc/wordle/team?number=${teamNum}`,
+          );
+
+          if (!res.ok) {
+            throw new Error(`Error status: ${res.status}`);
+          }
+
+          const data = await res.json();
+          console.log(data);
+          setRandomTeam(data);
+        } catch (error: any) {
+          console.error(error);
+        }
+      }
+
+      if (validTeams.length !== 0 && !isAreaRequestLoading) {
+        toast.promise(
+          getRandomTeamData(
+            validTeams[Math.floor(Math.random() * validTeams.length)],
+          ),
+          {
+            pending: "Fetching random team data...",
+            success: "Random team fetched successfully",
+            error: "Failed to fetch random team",
+          },
+          {
+            theme: "dark",
+            hideProgressBar: false,
+            pauseOnHover: false,
+            draggable: true,
+            progress: undefined,
+            transition: Bounce,
+            autoClose: 1000,
+          },
+        );
+      } else {
+        // errorToast("Failed to fetch guessable team");
+        console.log("diff calc", difficultyCalculations);
+        console.log("valid teams", validTeams);
       }
     }
-
-    if (validTeams.length !== 0) {
-      toast.promise(
-        getRandomTeamData(
-          validTeams[Math.floor(Math.random() * validTeams.length)],
-        ),
-        {
-          pending: "Fetching random team data...",
-          success: "Random team fetched successfully",
-          error: "Failed to fetch random team",
-        },
-        {
-          theme: "dark",
-          hideProgressBar: false,
-          pauseOnHover: false,
-          draggable: true,
-          progress: undefined,
-          transition: Bounce,
-          autoClose: 1000,
-        },
-      );
-      console.log("diff calc", difficultyCalculations);
-      console.log("valid teams", validTeams);
-    } else {
-      errorToast("Failed to fetch guessable team");
-      console.log("diff calc", difficultyCalculations);
-      console.log("valid teams", validTeams);
-    }
-  }, [setUpdateRandomTeam]);
+  }, [
+    frcAreaData,
+    regionalFRCAreaData,
+    allFRCAreaData,
+    lastRequestedDifficulty,
+  ]);
 
   useEffect(() => {
     if (isModalVisible) {
       canGetAreaData.current = false;
+      // canGetRandomTeam.current = false;
     }
   }, [isModalVisible]);
 
