@@ -2,6 +2,8 @@
 
 import { use } from "react";
 import { notFound } from "next/navigation";
+import FRCTrivia from "./frcTrivia";
+import FTCTrivia from "./ftcTrivia";
 
 export default function Trivia({
   params,
@@ -14,5 +16,11 @@ export default function Trivia({
     notFound();
   }
 
-  return <h1>{type.toUpperCase()} Trivia</h1>;
+  if (type.toLowerCase() === "frc") {
+    return <FRCTrivia />;
+  }
+
+  if (type.toLowerCase() === "ftc") {
+    return <FTCTrivia />;
+  }
 }

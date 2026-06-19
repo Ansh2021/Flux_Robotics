@@ -25,6 +25,10 @@ Area Rank Calc=
 10-((Area Rank-1)/(Num Teams in Area-1)*9)
 */
 
+//TODO: make data fetch from database instead.
+//Area data should update once a day
+//Team data should be fetched from LOCAL area data (not repeatedly fetched from APIs)
+
 export default function FRCWordle() {
   const [frcModalVisible, setFRCModalVisible] = useState(false);
   const [frcSuccessModalVisible, setFRCSuccessModalVisible] = useState(false);
@@ -53,7 +57,7 @@ export default function FRCWordle() {
   const insufficientInfo = () => {
     toast.error("Please indicate a valid area and/or difficulty", {
       theme: "dark",
-      autoClose: 5000,
+      autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: false,
@@ -108,7 +112,7 @@ export default function FRCWordle() {
           />
           <button
             onClick={() => {
-              if (!frcSelectedArea || !frcSelectedDifficulty) {
+              if (!(frcSelectedArea && frcSelectedDifficulty)) {
                 insufficientInfo();
                 return;
               }
@@ -233,9 +237,6 @@ function FRCModalAreaInput({
   >;
 }) {
   const [query, setQuery] = useState("");
-  // const [frcSelectedArea, setFRCSelectedArea] = useState<(typeof frcAreas)[number] | null>(
-  //   null,
-  // );
 
   const filteredAreas =
     query === ""
@@ -245,7 +246,7 @@ function FRCModalAreaInput({
         });
 
   return (
-    <div id="test" className="mx-auto h-10 w-full">
+    <div className="mx-auto h-10 w-full">
       <Combobox
         value={frcSelectedArea}
         onChange={(value) => setFRCSelectedArea(value)}

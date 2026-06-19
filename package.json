@@ -9,7 +9,8 @@
   "scripts": {
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "generate-supa-types": "npx supabase gen types typescript --project-id \"bbnfifcrdapaoqyfhttn\" > backend/src/types/database.types.ts"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
