@@ -2,8 +2,10 @@
 
 import { use } from "react";
 import { notFound } from "next/navigation";
+import FRCClicker from "./frcClicker";
+import FTCClicker from "./ftcClicker";
 
-export default function Clicker({
+export default function Trivia({
   params,
 }: {
   params: Promise<{ type: string }>;
@@ -14,5 +16,11 @@ export default function Clicker({
     notFound();
   }
 
-  return <h1>{type.toUpperCase()} Clicker</h1>;
+  if (type.toLowerCase() === "frc") {
+    return <FRCClicker />;
+  }
+
+  if (type.toLowerCase() === "ftc") {
+    return <FTCClicker />;
+  }
 }

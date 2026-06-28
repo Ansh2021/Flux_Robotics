@@ -68,9 +68,11 @@ export function Header() {
           </div>
           <div className="bg-black px-4 py-2 rounded-md text-white/60 hover:text-white transition ease-in-out duration-500 max-[400px]:hidden">
             <Link href="/about">
-              <p className={`text-xl ${geistMono.className} antialiased`}>
-                About
-              </p>
+              <button>
+                <p className={`text-xl ${geistMono.className} antialiased`}>
+                  About
+                </p>
+              </button>
             </Link>
           </div>
         </nav>
