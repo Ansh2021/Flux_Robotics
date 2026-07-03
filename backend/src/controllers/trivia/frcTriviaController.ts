@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { supabase } from "../../supabase.js";
+import { supabaseClient } from "../../supabase.js";
 
 interface TriviaQuestions {
   category: string[];
@@ -34,7 +34,7 @@ export const getTriviaQuestions = async (
     Array.isArray(answerType) ? answerType : [answerType]
   ) as (string | null)[];
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("frc_trivia")
     .select("*")
     .in("core_category", categories)

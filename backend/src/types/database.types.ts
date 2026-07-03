@@ -41,6 +41,627 @@ export type Database = {
         }
         Relationships: []
       }
+      frcdle_all: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_ca: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_fch: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_fim: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_fin: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_fit: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_fma: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_fnc: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_fsc: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_isr: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_ne: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_ont: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_pch: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_pnw: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_regionals: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_team_data: {
+        Row: {
+          area: string | null
+          areaRank: number | null
+          awardNum: number | null
+          epaRank: number | null
+          numYearsParticipating: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          area?: string | null
+          areaRank?: number | null
+          awardNum?: number | null
+          epaRank?: number | null
+          numYearsParticipating?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          area?: string | null
+          areaRank?: number | null
+          awardNum?: number | null
+          epaRank?: number | null
+          numYearsParticipating?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
+      frcdle_win: {
+        Row: {
+          areaRank: number | null
+          epaRank: number | null
+          rookieYear: number | null
+          teamName: string | null
+          teamNum: number
+          timestamp: string
+          totalNumTeams: number | null
+          unitlessEPA: number | null
+          worldEPARank: number | null
+        }
+        Insert: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Update: {
+          areaRank?: number | null
+          epaRank?: number | null
+          rookieYear?: number | null
+          teamName?: string | null
+          teamNum?: number
+          timestamp?: string
+          totalNumTeams?: number | null
+          unitlessEPA?: number | null
+          worldEPARank?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
