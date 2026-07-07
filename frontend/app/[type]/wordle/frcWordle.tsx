@@ -26,6 +26,10 @@ Area Rank Calc=
 10-((Area Rank-1)/(Num Teams in Area-1)*9)
 */
 
+const BASE_URL = process.env.NEXT_PUBLIC_VERCEL_ENV
+  ? ""
+  : "http://localhost:5000";
+
 export default function FRCWordle() {
   const [frcModalVisible, setFRCModalVisible] = useState(false);
   const [frcSuccessModalVisible, setFRCSuccessModalVisible] = useState(false);
@@ -513,7 +517,9 @@ function FRCdleTable({
         if (allRequestedTeams.includes(teamNum)) {
           throw new Error("This team has already been guessed");
         }
-        const res = await fetch(`/frc/wordle/team?number=${teamNum}`);
+        const res = await fetch(
+          `${BASE_URL}/frc/wordle/team?number=${teamNum}`,
+        );
 
         if (!res.ok) {
           throw new Error(`Error status: ${res.status}`);
@@ -631,7 +637,9 @@ function FRCdleTable({
             (area === "regionals" && regionalFRCAreaData.length === 0) ||
             area !== "regionals"
           ) {
-            const res = await fetch(`/frc/wordle/multiple?district=${area}`);
+            const res = await fetch(
+              `${BASE_URL}/frc/wordle/multiple?district=${area}`,
+            );
 
             if (!res.ok) {
               throw new Error(`Error status: ${res.status}`);
@@ -650,7 +658,9 @@ function FRCdleTable({
             return;
           }
         } else if (allFRCAreaData.length === 0) {
-          const resAll = await fetch(`/frc/wordle/multiple?district=all`);
+          const resAll = await fetch(
+            `${BASE_URL}/frc/wordle/multiple?district=all`,
+          );
           if (!resAll.ok) {
             throw new Error(`Error status: ${resAll.status}`);
           }
@@ -819,7 +829,9 @@ function FRCdleTable({
       async function getRandomTeamData(teamNum: number) {
         try {
           setIsTeamRequestLoading(true);
-          const res = await fetch(`/frc/wordle/team?number=${teamNum}`);
+          const res = await fetch(
+            `${BASE_URL}/frc/wordle/team?number=${teamNum}`,
+          );
 
           if (!res.ok) {
             throw new Error(`Error status: ${res.status}`);

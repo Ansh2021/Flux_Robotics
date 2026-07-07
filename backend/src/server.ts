@@ -4,9 +4,8 @@ import cors from "cors";
 import { router } from "./routes/frcRoutes.js";
 
 const app = express();
-const FRONTEND_URL = process.env.VERCEL
-  ? process.env.FRONTEND_URL
-  : "http://localhost:3000";
+const PORT = process.env.PORT || 7000;
+const FRONTEND_URL = process.env.VERCEL_ENV ? false : "http://localhost:3000";
 
 const frcRouter = router;
 
@@ -29,9 +28,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 
 app.use("/frc", frcRouter);
 
-if (!process.env.VERCEL) {
-  const PORT = process.env.PORT || 7000;
-
+if (!process.env.VERCEL_ENV) {
   app.listen(PORT, () => {
     console.log(`Backend running on http://localhost:${PORT}`);
   });
