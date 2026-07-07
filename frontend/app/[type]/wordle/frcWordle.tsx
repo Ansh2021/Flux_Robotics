@@ -331,9 +331,6 @@ function FRCModalDifficultyInput({
   >;
 }) {
   const [query, setQuery] = useState("");
-  // const [frcSelectedDifficulty, setFRCSelectedDifficulty] = useState<
-  //   (typeof frcDifficulties)[number] | null
-  // >(null);
 
   const filteredDifficulties =
     query === ""
@@ -515,7 +512,6 @@ function FRCdleTable({
       try {
         if (isAreaRequestLoading) {
           errorToast("Please wait for the area data to load");
-          // setGuessAmount((prev) => prev + 1);
           return;
         }
         setIsTeamRequestLoading(true);
@@ -531,146 +527,17 @@ function FRCdleTable({
         }
 
         const data = (await res.json()) as NewTeam;
-        // console.log(data);
         setTableRows([...tableRows, data]);
         setAllRequestedTeams([...allRequestedTeams, teamNum]);
         setGuessAmount((prev) => prev + 1);
       } catch (error: any) {
         console.error(error);
         throw new Error(error);
-        // errorToast(
-        //   "Internal server error. Make sure you inputted a valid team.",
-        // );
       } finally {
         setGuessInput("");
         setIsTeamRequestLoading(false);
       }
     }
-
-    // async function getSingleFRCTeamData(teamNum: number) {
-    //   if (allRequestedTeams.includes(teamNum)) {
-    //     throw new Error("Team has already been guessed");
-    //   }
-    //   setGuessAmount((prev) => prev + 1);
-
-    //   const data: NewTeam[] = [];
-    //   if (teamNum === 4188) {
-    //     data.push({
-    //       area: "Peachtree",
-    //       areaRank: 5,
-    //       awardNum: 7,
-    //       epaRank: 7,
-    //       totalNumTeams: 74,
-    //       numYearsParticipating: 15,
-    //       rookieYear: 2012,
-    //       teamName: "Columbus Space Program",
-    //       teamNum: 4188,
-    //       unitlessEPA: 1727,
-    //       worldEPARank: 352,
-    //     });
-    //   } else if (teamNum === 1771) {
-    //     data.push({
-    //       area: "Peachtree",
-    //       areaRank: 2,
-    //       awardNum: 5,
-    //       epaRank: 3,
-    //       totalNumTeams: 74,
-    //       numYearsParticipating: 20,
-    //       rookieYear: 2006,
-    //       teamName: "North Gwinnett Robotics",
-    //       teamNum: 1771,
-    //       unitlessEPA: 1881,
-    //       worldEPARank: 121,
-    //     });
-    //   } else if (teamNum === 1833) {
-    //     data.push({
-    //       area: "Peachtree",
-    //       areaRank: 1,
-    //       awardNum: 7,
-    //       epaRank: 1,
-    //       totalNumTeams: 74,
-    //       numYearsParticipating: 2,
-    //       rookieYear: 2006,
-    //       teamName: "Team BEAN",
-    //       teamNum: 1833,
-    //       unitlessEPA: 2006,
-    //       worldEPARank: 35,
-    //     });
-    //   } else if (teamNum === 1002) {
-    //     data.push({
-    //       area: "Peachtree",
-    //       areaRank: 4,
-    //       awardNum: 6,
-    //       epaRank: 2,
-    //       totalNumTeams: 74,
-    //       numYearsParticipating: 24,
-    //       rookieYear: 2003,
-    //       teamName: "CircuitRunners Robotics",
-    //       teamNum: 1002,
-    //       unitlessEPA: 1890,
-    //       worldEPARank: 112,
-    //     });
-    //   } else if (teamNum === 6919) {
-    //     data.push({
-    //       area: "Peachtree",
-    //       areaRank: 3,
-    //       awardNum: 6,
-    //       epaRank: 5,
-    //       totalNumTeams: 74,
-    //       numYearsParticipating: 9,
-    //       rookieYear: 2018,
-    //       teamName: "The Commodores",
-    //       teamNum: 6919,
-    //       unitlessEPA: 1783,
-    //       worldEPARank: 250,
-    //     });
-    //   } else if (teamNum === 1261) {
-    //     data.push({
-    //       area: "Peachtree",
-    //       areaRank: 8,
-    //       awardNum: 2,
-    //       epaRank: 4,
-    //       totalNumTeams: 74,
-    //       numYearsParticipating: 23,
-    //       rookieYear: 2004,
-    //       teamName: "Robo Lions Team1261",
-    //       teamNum: 1261,
-    //       unitlessEPA: 1833,
-    //       worldEPARank: 179,
-    //     });
-    //   } else if (teamNum === 2974) {
-    //     data.push({
-    //       area: "Peachtree",
-    //       areaRank: 6,
-    //       awardNum: 7,
-    //       epaRank: 6,
-    //       totalNumTeams: 74,
-    //       numYearsParticipating: 19,
-    //       rookieYear: 2009,
-    //       teamName: "Walton Robotics",
-    //       teamNum: 2974,
-    //       unitlessEPA: 1775,
-    //       worldEPARank: 265,
-    //     });
-    //   } else if (teamNum === 4189) {
-    //     data.push({
-    //       area: "Peachtree",
-    //       areaRank: 7,
-    //       awardNum: 2,
-    //       epaRank: 8,
-    //       totalNumTeams: 74,
-    //       numYearsParticipating: 15,
-    //       rookieYear: 2012,
-    //       teamName: "Chargers",
-    //       teamNum: 4189,
-    //       unitlessEPA: 1718,
-    //       worldEPARank: 376,
-    //     });
-    //   }
-
-    //   setTableRows([...tableRows, data[0]]);
-    //   setAllRequestedTeams([...allRequestedTeams, teamNum]);
-    // }
 
     if (
       guessInput &&
@@ -865,129 +732,6 @@ function FRCdleTable({
         console.log("Stop trying to flag my TBA API key.");
       }
 
-      //TODO: remove this hardcoded data function
-      // async function getRandomTeamData(teamNum: number) {
-      //   const data: NewTeam[] = [];
-      //   if (teamNum === 4188) {
-      //     data.push({
-      //       area: "Peachtree",
-      //       areaRank: 5,
-      //       awardNum: 7,
-      //       epaRank: 7,
-      //       totalNumTeams: 74,
-      //       numYearsParticipating: 15,
-      //       rookieYear: 2012,
-      //       teamName: "Columbus Space Program",
-      //       teamNum: 4188,
-      //       unitlessEPA: 1727,
-      //       worldEPARank: 352,
-      //     });
-      //   } else if (teamNum === 1771) {
-      //     data.push({
-      //       area: "Peachtree",
-      //       areaRank: 2,
-      //       awardNum: 5,
-      //       epaRank: 3,
-      //       totalNumTeams: 74,
-      //       numYearsParticipating: 20,
-      //       rookieYear: 2006,
-      //       teamName: "North Gwinnett Robotics",
-      //       teamNum: 1771,
-      //       unitlessEPA: 1881,
-      //       worldEPARank: 121,
-      //     });
-      //   } else if (teamNum === 1833) {
-      //     data.push({
-      //       area: "Peachtree",
-      //       areaRank: 1,
-      //       awardNum: 7,
-      //       epaRank: 1,
-      //       totalNumTeams: 74,
-      //       numYearsParticipating: 2,
-      //       rookieYear: 2006,
-      //       teamName: "Team BEAN",
-      //       teamNum: 1833,
-      //       unitlessEPA: 2006,
-      //       worldEPARank: 35,
-      //     });
-      //   } else if (teamNum === 1002) {
-      //     data.push({
-      //       area: "Peachtree",
-      //       areaRank: 4,
-      //       awardNum: 6,
-      //       epaRank: 2,
-      //       totalNumTeams: 74,
-      //       numYearsParticipating: 24,
-      //       rookieYear: 2003,
-      //       teamName: "CircuitRunners Robotics",
-      //       teamNum: 1002,
-      //       unitlessEPA: 1890,
-      //       worldEPARank: 112,
-      //     });
-      //   } else if (teamNum === 6919) {
-      //     data.push({
-      //       area: "Peachtree",
-      //       areaRank: 3,
-      //       awardNum: 6,
-      //       epaRank: 5,
-      //       totalNumTeams: 74,
-      //       numYearsParticipating: 9,
-      //       rookieYear: 2018,
-      //       teamName: "The Commodores",
-      //       teamNum: 6919,
-      //       unitlessEPA: 1783,
-      //       worldEPARank: 250,
-      //     });
-      //   } else if (teamNum === 1261) {
-      //     data.push({
-      //       area: "Peachtree",
-      //       areaRank: 8,
-      //       awardNum: 2,
-      //       epaRank: 4,
-      //       totalNumTeams: 74,
-      //       numYearsParticipating: 23,
-      //       rookieYear: 2004,
-      //       teamName: "Robo Lions Team1261",
-      //       teamNum: 1261,
-      //       unitlessEPA: 1833,
-      //       worldEPARank: 179,
-      //     });
-      //   } else if (teamNum === 2974) {
-      //     data.push({
-      //       area: "Peachtree",
-      //       areaRank: 6,
-      //       awardNum: 7,
-      //       epaRank: 6,
-      //       totalNumTeams: 74,
-      //       numYearsParticipating: 19,
-      //       rookieYear: 2009,
-      //       teamName: "Walton Robotics",
-      //       teamNum: 2974,
-      //       unitlessEPA: 1775,
-      //       worldEPARank: 265,
-      //     });
-      //   } else if (teamNum === 4189) {
-      //     data.push({
-      //       area: "Peachtree",
-      //       areaRank: 7,
-      //       awardNum: 2,
-      //       epaRank: 8,
-      //       totalNumTeams: 74,
-      //       numYearsParticipating: 15,
-      //       rookieYear: 2012,
-      //       teamName: "Chargers",
-      //       teamNum: 4189,
-      //       unitlessEPA: 1718,
-      //       worldEPARank: 376,
-      //     });
-      //   }
-
-      //   setRandomTeam(data[0]);
-      //   // console.log("random team", data[0]);
-      // }
-
-      // const valTeams = [4188, 1261, 1771, 1833, 2974, 1002, 4189, 6919];
-      // getRandomTeamData(valTeams[Math.floor(Math.random() * valTeams.length)]);
       setGuessAmount(0);
     }
   }, [updateArea]);
@@ -1083,7 +827,6 @@ function FRCdleTable({
         }
       }
 
-      //TODO: uncomment this function below this comment
       async function getRandomTeamData(teamNum: number) {
         try {
           setIsTeamRequestLoading(true);

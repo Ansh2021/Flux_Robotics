@@ -1,12 +1,6 @@
-import React, {
-  useRef,
-  useEffect,
-  useState,
-  UIEvent,
-  SyntheticEvent,
-} from "react";
+import React, { useRef, useEffect, useState, UIEvent } from "react";
 import Image from "next/image";
-import { Exo_2 } from "next/font/google";
+import { flushSync } from "react-dom";
 
 //more items constants
 const GAME_PIECE_PRICE_SCALING = 1.22;
@@ -66,7 +60,7 @@ const GOLD_GAME_PIECE_MULTIPLIER = 5;
 const GOLD_GAME_PIECE_THRESHOLD = 20;
 
 const DIAMOND_GAME_PIECE_PRICE = 300000;
-const DIAMOND_GAME_PIECE_MULTIPLIER = 10;
+const DIAMOND_GAME_PIECE_MULTIPLIER = 8;
 const DIAMOND_GAME_PIECE_THRESHOLD = 30;
 
 const NEOS_PRICE = 10000;
@@ -165,45 +159,11 @@ const FRC_TEAM_PRICE = 2500000000;
 const FRC_TEAM_MULTIPLIER = 7;
 const FRC_TEAM_THRESHOLD = 15;
 
-//might not need this (unless i decide to rescale prices)
-const UpgradeOrder: { id: string; price: number }[] = [
-  { id: "stronger mouse", price: STRONGER_MOUSE_PRICE },
-  { id: "power drill", price: POWER_DRILL_PRICE },
-  { id: "autoclicker", price: AUTOCLICKER_PRICE },
-  { id: "silver game piece", price: SILVER_GAME_PIECE_PRICE },
-  { id: "gold game piece", price: GOLD_GAME_PIECE_PRICE },
-  { id: "diamond game piece", price: DIAMOND_GAME_PIECE_PRICE },
-  { id: "neo", price: NEOS_PRICE },
-  { id: "x44", price: KRAKEN_X44_PRICE },
-  { id: "x60", price: KRAKEN_X60_PRICE },
-  { id: "arducam", price: ARDUCAM_PRICE },
-  { id: "thrifty cam", price: THRIFTY_CAM_PRICE },
-  { id: "limelight", price: LIMELIGHT_PRICE },
-  { id: "spacex engineer", price: SPACEX_ENGINEER_PRICE },
-  { id: "lockheed engineer", price: LOCKHEED_ENGINEER_PRICE },
-  { id: "nasa engineer", price: NASA_ENGINEER_PRICE },
-  { id: "local business", price: LOCAL_BUSINESS_PRICE },
-  { id: "regional business", price: REGIONAL_BUSINESS_PRICE },
-  { id: "global corporation", price: GLOBAL_CORPORATION_PRICE },
-  { id: "ender 3", price: ENDER3_PRICE },
-  { id: "p1s", price: P1S_PRICE },
-  { id: "h2c", price: H2C_PRICE },
-  { id: "lathe", price: LATHE_PRICE },
-  { id: "bandsaw", price: BANDSAW_PRICE },
-  { id: "cnc", price: CNC_PRICE },
-  { id: "jitb", price: JITB_PRICE },
-  { id: "madtown", price: MADTOWN_PRICE },
-  { id: "poofs", price: POOFS_PRICE },
-  { id: "fll", price: FLL_TEAM_PRICE },
-  { id: "ftc", price: FTC_TEAM_PRICE },
-  { id: "frc", price: FRC_TEAM_PRICE },
-];
-
 //number formatter (oh yeah)
 const numFormatter = new Intl.NumberFormat("en-us", {
   notation: "compact",
   compactDisplay: "long",
-  minimumFractionDigits: 3,
+  minimumFractionDigits: 0,
   maximumFractionDigits: 3,
 });
 
@@ -215,16 +175,16 @@ export default function FRCClicker() {
   const [gamePiecesPerSecond, setGamePiecesPerSecond] = useState<number>(0);
   const gamePiecesPerSecondRef = useRef<number>(0); //so i don't read a stale useState value
   const totalRef = useRef<number>(0); //same here
+
   useEffect(() => {
     gamePiecesPerSecondRef.current = gamePiecesPerSecond;
   }, [gamePiecesPerSecond]);
+
   useEffect(() => {
     totalRef.current = total;
   }, [total]);
-  useEffect(() => {
-    setTotal(totalRef.current);
-  }, [totalRef.current]);
 
+  const [totalClicked, setTotalClicked] = useState<number>(0);
   const [clickMultiplier, setClickMultiplier] = useState<number>(1);
 
   //stopwatch to update total
@@ -238,10 +198,10 @@ export default function FRCClicker() {
 
     const delta = (time - lastTimeFrameRef.current) / 1000;
     lastTimeFrameRef.current = time;
-    const cookiesGainedThisFrame = delta * gamePiecesPerSecondRef.current;
-
-    totalRef.current += cookiesGainedThisFrame;
-    setTotal(Math.floor(totalRef.current));
+    const gamePiecesGainedThisFrame = delta * gamePiecesPerSecondRef.current;
+    totalRef.current += gamePiecesGainedThisFrame;
+    //flushSync ensures the useState updates the dom immediately instead of asynchronously
+    flushSync(() => setTotal(Math.floor(totalRef.current)));
 
     intervalRef.current = requestAnimationFrame(updateTime);
   };
@@ -300,16 +260,18 @@ export default function FRCClicker() {
       <div className="h-[calc(100dvh-4rem)] w-full flex flex-row items-center justify-center">
         <div className={`${selectedGamePiece === "Fuel" ? "flex" : "hidden"}`}>
           <RebuiltFuel
-            totalRef={totalRef}
             total={total}
             setTotal={setTotal}
             perSecond={gamePiecesPerSecond}
+            totalClicked={totalClicked}
+            setTotalClicked={setTotalClicked}
             clickMultiplier={clickMultiplier}
           />
         </div>
         <SideCatalog
           totalRef={totalRef}
           selectedGamePiece={selectedGamePiece}
+          totalClicked={totalClicked}
           setClickMultiplier={setClickMultiplier}
           setTotalGamePieceEffect={setTotalGamePieceEffect}
           setTotalMotorEffect={setTotalMotorEffect}
@@ -326,27 +288,30 @@ export default function FRCClicker() {
   );
 }
 
-//TODO: decide if i need totalRef or total to keep first time clicking accurate
-//(make sure the first click registers)
+/* I was supposed to make it so the user could change 
+the game piece they were clicking/farming. Decided not to implement
+it for now (maybe in another ship).*/
 function RebuiltFuel({
-  totalRef,
   total,
   setTotal,
   perSecond,
+  totalClicked,
+  setTotalClicked,
   clickMultiplier,
 }: {
-  totalRef: React.RefObject<number>;
   total: number;
   setTotal: React.Dispatch<React.SetStateAction<number>>;
   perSecond: number;
+  totalClicked: number;
+  setTotalClicked: React.Dispatch<React.SetStateAction<number>>;
   clickMultiplier: number;
 }) {
-  const [curHack, setCurHack] = useState<number>(0);
+  // const [curHack, setCurHack] = useState<number>(0);
 
-  const handleHacks = (event: React.SubmitEvent) => {
-    event.preventDefault();
-    setTotal((prev) => prev + curHack);
-  };
+  // const handleHacks = (event: React.SubmitEvent) => {
+  //   event.preventDefault();
+  //   setTotal((prev) => prev + curHack);
+  // };
 
   return (
     <div className="flex flex-col w-fit h-fit rounded-full gap-2 justify-center items-center">
@@ -361,18 +326,18 @@ function RebuiltFuel({
           {perSecond >= 1000000 ? numFormatter.format(perSecond) : perSecond}{" "}
           fuel per second
         </p>
-        <form onSubmit={handleHacks}>
+        {/* <form onSubmit={handleHacks}>
           <input
             value={curHack}
             onChange={(e) => setCurHack(Number(e.currentTarget.value))}
             placeholder="Hacks for testing purposes"
           ></input>
-        </form>
+        </form> */}
       </div>
       <button
         onClick={() => {
           setTotal((prev) => prev + clickMultiplier);
-          // console.log(totalRef.current, Math.floor(totalRef.current));
+          setTotalClicked((prev) => prev + 1);
         }}
       >
         <Image
@@ -391,6 +356,7 @@ function RebuiltFuel({
 function SideCatalog({
   totalRef,
   selectedGamePiece,
+  totalClicked,
   setClickMultiplier,
   setTotalGamePieceEffect,
   setTotalMotorEffect,
@@ -404,6 +370,7 @@ function SideCatalog({
 }: {
   totalRef: React.RefObject<number>;
   selectedGamePiece: string;
+  totalClicked: number;
   setClickMultiplier: React.Dispatch<React.SetStateAction<number>>;
   setTotalGamePieceEffect: React.Dispatch<React.SetStateAction<number>>;
   setTotalMotorEffect: React.Dispatch<React.SetStateAction<number>>;
@@ -633,6 +600,20 @@ function SideCatalog({
 
   useEffect(() => {
     if (
+      totalClicked >= POWER_DRILL_THRESHOLD &&
+      powerDrillBought.current === false
+    ) {
+      setPowerDrillUpgradeVisible(true);
+    }
+
+    if (
+      totalClicked >= AUTOCLICKER_THRESHOLD &&
+      autoClickerBought.current === false
+    ) {
+      setAutoclickerUpgradeVisible(true);
+    }
+
+    if (
       numGamePieces >= SILVER_GAME_PIECE_THRESHOLD &&
       silverGamePieceBought.current === false
     ) {
@@ -788,6 +769,7 @@ function SideCatalog({
       setFrcTeamUpgradeVisible(true);
     }
   }, [
+    totalClicked,
     numGamePieces,
     numMotors,
     numCameras,
@@ -829,7 +811,13 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= STRONGER_MOUSE_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  1 {/* placeholder */}
+                  <Image
+                    src="/stronger-mouse-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="A pixelated cursor with an arrow pointing up"
+                    className="scale-80"
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -857,7 +845,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= POWER_DRILL_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  2 {/* placeholder */}
+                  <Image
+                    src="/power-drill-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="A pixelated power drill"
+                    className="scale-150"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -868,7 +863,7 @@ function SideCatalog({
           >
             <ToolTip
               name="Auto Clicker"
-              description="How do you even click with this?"
+              description="Not really auto I guess."
               effect={`${AUTOCLICKER_MULTIPLIER}x clicking multiplier`}
               cost={`${AUTOCLICKER_PRICE >= 1000000 ? numFormatter.format(AUTOCLICKER_PRICE) : AUTOCLICKER_PRICE} ${selectedGamePiece}`}
             >
@@ -885,7 +880,13 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= AUTOCLICKER_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  3 {/* placeholder */}
+                  <Image
+                    src="/autoclicker-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Two pixelated cursors"
+                    className="scale-90"
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -916,7 +917,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= SILVER_GAME_PIECE_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  4 {/* placeholder */}
+                  <Image
+                    src="/silver-game-piece-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Rebuilt fuel with a silver filter applied to it"
+                    className="scale-80"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -947,7 +955,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= GOLD_GAME_PIECE_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  5 {/* placeholder */}
+                  <Image
+                    src="/gold-game-piece-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Rebuilt fuel with a gold filter applied to it"
+                    className="scale-80"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -978,7 +993,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= DIAMOND_GAME_PIECE_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  6 {/* placeholder */}
+                  <Image
+                    src="/diamond-game-piece-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Rebuilt fuel with a diamond filter applied to it"
+                    className="scale-80"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -1006,7 +1028,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= NEOS_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  7 {/* placeholder */}
+                  <Image
+                    src="/neo-motor-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="A REV NEO motor"
+                    className="scale-80"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -1034,7 +1063,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= KRAKEN_X44_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  8 {/* placeholder */}
+                  <Image
+                    src="/kraken-x44-motor-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="A Kraken X44 motor"
+                    className="scale-80"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -1062,7 +1098,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= KRAKEN_X60_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  9 {/* placeholder */}
+                  <Image
+                    src="/kraken-x60-motor-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="A Kraken X60 motor"
+                    className="scale-80"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -1090,7 +1133,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= ARDUCAM_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  10 {/* placeholder */}
+                  <Image
+                    src="/arducam-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="An arducam camera"
+                    className="scale-90"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -1118,7 +1168,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= THRIFTY_CAM_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  11 {/* placeholder */}
+                  <Image
+                    src="/thriftycam-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="A thrifty cam"
+                    className="scale-100"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -1146,7 +1203,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= LIMELIGHT_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  12 {/* placeholder */}
+                  <Image
+                    src="/limelight-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="A limelight cam"
+                    className="scale-100"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -1177,7 +1241,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= SPACEX_ENGINEER_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  13 {/* placeholder */}
+                  <Image
+                    src="/spacex-engineer-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="The SpaceX logo"
+                    className="scale-75"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -1208,7 +1279,14 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= LOCKHEED_ENGINEER_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  14 {/* placeholder */}
+                  <Image
+                    src="/lockheed-engineer-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="The Lockheed Martin logo"
+                    className="scale-100"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>
@@ -1239,7 +1317,554 @@ function SideCatalog({
                 <div
                   className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= NASA_ENGINEER_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
                 >
-                  15 {/* placeholder */}
+                  <Image
+                    src="/nasa-engineer-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="The NASA logo"
+                    className="scale-70"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${localBusinessUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: LOCAL_BUSINESS_PRICE }}
+          >
+            <ToolTip
+              name="Local Business"
+              description="Support your community!"
+              effect={`${LOCAL_BUSINESS_MULTIPLIER}x sponsor multiplier`}
+              cost={`${LOCAL_BUSINESS_PRICE >= 1000000 ? numFormatter.format(LOCAL_BUSINESS_PRICE) : LOCAL_BUSINESS_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < LOCAL_BUSINESS_PRICE)
+                    return;
+                  setSponsorMultiplier(
+                    (prev) => prev * LOCAL_BUSINESS_MULTIPLIER,
+                  );
+                  setLocalBusinessUpgradeVisible(false);
+                  localBusinessBought.current = true;
+                  totalRef.current -= LOCAL_BUSINESS_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= LOCAL_BUSINESS_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= LOCAL_BUSINESS_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/local-business-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Illustration of a local business"
+                    className="scale-100"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${regionalBusinessUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: REGIONAL_BUSINESS_PRICE }}
+          >
+            <ToolTip
+              name="Regional Business"
+              description="Support your country!"
+              effect={`${REGIONAL_BUSINESS_MULTIPLIER}x sponsor multiplier`}
+              cost={`${REGIONAL_BUSINESS_PRICE >= 1000000 ? numFormatter.format(REGIONAL_BUSINESS_PRICE) : REGIONAL_BUSINESS_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < REGIONAL_BUSINESS_PRICE)
+                    return;
+                  setSponsorMultiplier(
+                    (prev) => prev * REGIONAL_BUSINESS_MULTIPLIER,
+                  );
+                  setRegionalBusinessUpgradeVisible(false);
+                  regionalBusinessBought.current = true;
+                  totalRef.current -= REGIONAL_BUSINESS_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= REGIONAL_BUSINESS_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= REGIONAL_BUSINESS_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/regional-business-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Illustration of a regional business's area of operation"
+                    className="scale-70"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${globalCorporationUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: GLOBAL_CORPORATION_PRICE }}
+          >
+            <ToolTip
+              name="Global Corporation"
+              description="Economic giants by your side."
+              effect={`${GLOBAL_CORPORATION_MULTIPLIER}x sponsor multiplier`}
+              cost={`${GLOBAL_CORPORATION_PRICE >= 1000000 ? numFormatter.format(GLOBAL_CORPORATION_PRICE) : GLOBAL_CORPORATION_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < GLOBAL_CORPORATION_PRICE)
+                    return;
+                  setSponsorMultiplier(
+                    (prev) => prev * GLOBAL_CORPORATION_MULTIPLIER,
+                  );
+                  setGlobalCorporationUpgradeVisible(false);
+                  globalCorporationBought.current = true;
+                  totalRef.current -= GLOBAL_CORPORATION_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= GLOBAL_CORPORATION_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= GLOBAL_CORPORATION_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/global-corporation-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Illustration of a global corporation's influence"
+                    className="scale-70"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${ender3UpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: ENDER3_PRICE }}
+          >
+            <ToolTip
+              name="Ender 3"
+              description="Low-end 3D printer."
+              effect={`${ENDER3_MULTIPLIER}x printer multiplier`}
+              cost={`${ENDER3_PRICE >= 1000000 ? numFormatter.format(ENDER3_PRICE) : ENDER3_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < ENDER3_PRICE) return;
+                  setPrinterMultiplier((prev) => prev * ENDER3_MULTIPLIER);
+                  setEnder3UpgradeVisible(false);
+                  ender3Bought.current = true;
+                  totalRef.current -= ENDER3_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= ENDER3_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= ENDER3_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/ender3-printer-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Image of the Ender 3 3D printer by Creality"
+                    className="scale-60"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${p1sUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: P1S_PRICE }}
+          >
+            <ToolTip
+              name="P1S"
+              description="Perfect for your 3D print farm."
+              effect={`${P1S_MULTIPLIER}x printer multiplier`}
+              cost={`${P1S_PRICE >= 1000000 ? numFormatter.format(P1S_PRICE) : P1S_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < P1S_PRICE) return;
+                  setPrinterMultiplier((prev) => prev * P1S_MULTIPLIER);
+                  setP1sUpgradeVisible(false);
+                  p1sBought.current = true;
+                  totalRef.current -= P1S_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= P1S_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= P1S_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/p1s-printer-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Image of the P1S 3D printer by Bambu Labs"
+                    className="scale-75"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${h2cUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: H2C_PRICE }}
+          >
+            <ToolTip
+              name="H2C"
+              description="Uses military-grade plastic!"
+              effect={`${H2C_MULTIPLIER}x printer multiplier`}
+              cost={`${H2C_PRICE >= 1000000 ? numFormatter.format(H2C_PRICE) : H2C_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < H2C_PRICE) return;
+                  setPrinterMultiplier((prev) => prev * H2C_MULTIPLIER);
+                  setH2cUpgradeVisible(false);
+                  h2cBought.current = true;
+                  totalRef.current -= H2C_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= H2C_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= H2C_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/h2c-printer-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Image of the H2C 3D printer by Bambu Labs"
+                    className="scale-80"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${latheUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: LATHE_PRICE }}
+          >
+            <ToolTip
+              name="Lathe"
+              description="Spinny machine."
+              effect={`${LATHE_MULTIPLIER}x machine multiplier`}
+              cost={`${LATHE_PRICE >= 1000000 ? numFormatter.format(LATHE_PRICE) : LATHE_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < LATHE_PRICE) return;
+                  setMachineMultiplier((prev) => prev * LATHE_MULTIPLIER);
+                  setLatheUpgradeVisible(false);
+                  latheBought.current = true;
+                  totalRef.current -= LATHE_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= LATHE_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= LATHE_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/lathe-machine-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Image of a lathe machine"
+                    className="scale-80"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${bandsawUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: BANDSAW_PRICE }}
+          >
+            <ToolTip
+              name="Bandsaw"
+              description="The chainsaw's older brother."
+              effect={`${BANDSAW_MULTIPLIER}x machine multiplier`}
+              cost={`${BANDSAW_PRICE >= 1000000 ? numFormatter.format(BANDSAW_PRICE) : BANDSAW_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < BANDSAW_PRICE) return;
+                  setMachineMultiplier((prev) => prev * BANDSAW_MULTIPLIER);
+                  setBandsawUpgradeVisible(false);
+                  bandsawBought.current = true;
+                  totalRef.current -= BANDSAW_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= BANDSAW_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= BANDSAW_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/bandsaw-machine-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Image of a vertical bandsaw machine"
+                    className="scale-80"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${cncUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: CNC_PRICE }}
+          >
+            <ToolTip
+              name="CNC"
+              description="Definitely the superior machine."
+              effect={`${CNC_MULTIPLIER}x machine multiplier`}
+              cost={`${CNC_PRICE >= 1000000 ? numFormatter.format(CNC_PRICE) : CNC_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < CNC_PRICE) return;
+                  setMachineMultiplier((prev) => prev * CNC_MULTIPLIER);
+                  setCncUpgradeVisible(false);
+                  cncBought.current = true;
+                  totalRef.current -= CNC_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= CNC_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= CNC_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/cnc-machine-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Image of a CNC machine"
+                    className="scale-75"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${jitbUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: JITB_PRICE }}
+          >
+            <ToolTip
+              name="2910 Level"
+              description="Jack is inside the bot."
+              effect={`${JITB_MULTIPLIER}x robot multiplier`}
+              cost={`${JITB_PRICE >= 1000000 ? numFormatter.format(JITB_PRICE) : JITB_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < JITB_PRICE) return;
+                  setRobotMultiplier((prev) => prev * JITB_MULTIPLIER);
+                  setJitbUpgradeVisible(false);
+                  jitbBought.current = true;
+                  totalRef.current -= JITB_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= JITB_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= JITB_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/jitb-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Image of the Jack in the Bot logo (2910)"
+                    className="scale-75"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${madtownUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: MADTOWN_PRICE }}
+          >
+            <ToolTip
+              name="1323 Level"
+              description="This town is really mad."
+              effect={`${MADTOWN_MULTIPLIER}x robot multiplier`}
+              cost={`${MADTOWN_PRICE >= 1000000 ? numFormatter.format(MADTOWN_PRICE) : MADTOWN_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < MADTOWN_PRICE) return;
+                  setRobotMultiplier((prev) => prev * MADTOWN_MULTIPLIER);
+                  setMadtownUpgradeVisible(false);
+                  madtownBought.current = true;
+                  totalRef.current -= MADTOWN_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= MADTOWN_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= MADTOWN_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/madtown-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Image of the MadTown logo (1323)"
+                    className="scale-75"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${poofsUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: POOFS_PRICE }}
+          >
+            <ToolTip
+              name="254 Level"
+              description="The GOAT of FRC."
+              effect={`${POOFS_MULTIPLIER}x robot multiplier`}
+              cost={`${POOFS_PRICE >= 1000000 ? numFormatter.format(POOFS_PRICE) : POOFS_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < POOFS_PRICE) return;
+                  setRobotMultiplier((prev) => prev * POOFS_MULTIPLIER);
+                  setPoofsUpgradeVisible(false);
+                  poofsBought.current = true;
+                  totalRef.current -= POOFS_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= POOFS_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= POOFS_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/poofs-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="Image of the Cheesy Poofs logo (254)"
+                    className="scale-65"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${fllTeamUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: FLL_TEAM_PRICE }}
+          >
+            <ToolTip
+              name="FLL Team"
+              description="Where it all begins."
+              effect={`${FLL_TEAM_MULTIPLIER}x mentored team multiplier`}
+              cost={`${FLL_TEAM_PRICE >= 1000000 ? numFormatter.format(FLL_TEAM_PRICE) : FLL_TEAM_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < FLL_TEAM_PRICE) return;
+                  setMentoredTeamMultiplier(
+                    (prev) => prev * FLL_TEAM_MULTIPLIER,
+                  );
+                  setFllTeamUpgradeVisible(false);
+                  fllTeamBought.current = true;
+                  totalRef.current -= FLL_TEAM_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 overflow-clip ${Math.floor(totalRef.current) >= FLL_TEAM_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= FLL_TEAM_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/fll-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="The words FIRST Lego League (FLL)"
+                    className="scale-130"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${fllTeamUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: FTC_TEAM_PRICE }}
+          >
+            <ToolTip
+              name="FTC Team"
+              description="Tiny FRC robots."
+              effect={`${FTC_TEAM_MULTIPLIER}x mentored team multiplier`}
+              cost={`${FTC_TEAM_PRICE >= 1000000 ? numFormatter.format(FTC_TEAM_PRICE) : FTC_TEAM_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < FTC_TEAM_PRICE) return;
+                  setMentoredTeamMultiplier(
+                    (prev) => prev * FTC_TEAM_MULTIPLIER,
+                  );
+                  setFtcTeamUpgradeVisible(false);
+                  ftcTeamBought.current = true;
+                  totalRef.current -= FTC_TEAM_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 overflow-clip ${Math.floor(totalRef.current) >= FTC_TEAM_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= FTC_TEAM_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/ftc-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="The words FIRST Tech Challenge (FTC)"
+                    className="scale-130"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </ToolTip>
+          </div>
+          <div
+            className={`${frcTeamUpgradeVisible ? "flex" : "hidden"}`}
+            style={{ order: FRC_TEAM_PRICE }}
+          >
+            <ToolTip
+              name="FRC Team"
+              description="The best FIRST program."
+              effect={`${FRC_TEAM_MULTIPLIER}x mentored team multiplier`}
+              cost={`${FRC_TEAM_PRICE >= 1000000 ? numFormatter.format(FRC_TEAM_PRICE) : FRC_TEAM_PRICE} ${selectedGamePiece}`}
+            >
+              <button
+                onClick={() => {
+                  if (Math.floor(totalRef.current) < FRC_TEAM_PRICE) return;
+                  setMentoredTeamMultiplier(
+                    (prev) => prev * FRC_TEAM_MULTIPLIER,
+                  );
+                  setFrcTeamUpgradeVisible(false);
+                  frcTeamBought.current = true;
+                  totalRef.current -= FRC_TEAM_PRICE;
+                }}
+                className={`group flex rounded-full items-center justify-center h-10 w-10 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] overflow-clip text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300 ${Math.floor(totalRef.current) >= FRC_TEAM_PRICE - 1 ? "shadow-xl shadow-[#110e73]/50" : "shadow-none"}`}
+              >
+                <div
+                  className={`rounded-full group-hover:bg-[#111111] transition-all ease-in-out duration:300 h-full w-full flex justify-center items-center group-hover:transition group-hover:ease-in-out group-hover:duration-300 ${Math.floor(totalRef.current) >= FRC_TEAM_PRICE - 1 ? "bg-[#111111]" : "bg-black"}`}
+                >
+                  <Image
+                    src="/frc-upgrade.png"
+                    width={100}
+                    height={100}
+                    alt="The words FIRST Robotics Competition (FRC)"
+                    className="scale-150"
+                    unoptimized
+                  />
                 </div>
               </button>
             </ToolTip>

@@ -5,7 +5,12 @@ export default function FTCWordle() {
         <h1 className="text-3xl font-bold w-fit text-center p-4">
           Welcome to FTCdle
         </h1>
+        <p>
+          I was going to add an FTCdle but I decided not to for now. FRCdle
+          already took me so much time to make.
+        </p>
       </div>
+
       {/* make the modal actually appear above the content instead of below*/}
 
       {/* <div id="frc-wordle-modal">
