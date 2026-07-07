@@ -19,6 +19,7 @@
     "zustand": "^5.0.13"
   },
   "devDependencies": {
+    "@jridgewell/resolve-uri": "^3.1.2",
     "@jridgewell/sourcemap-codec": "^1.5.5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
