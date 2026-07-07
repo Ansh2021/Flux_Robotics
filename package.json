@@ -10,7 +10,7 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "build": "cd frontend && npm run build",
+    "build": "npm run build --workspace=frontend",
     "generate-supa-types": "npx supabase gen types typescript --project-id \"bbnfifcrdapaoqyfhttn\" > backend/src/types/database.types.ts"
   },
   "devDependencies": {
