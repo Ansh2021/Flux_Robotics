@@ -79,7 +79,7 @@ export default function FRCTrivia() {
       );
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/frc/trivia/get-questions/?${urlParams.toString()}`,
+          `/frc/trivia/get-questions/?${urlParams.toString()}`,
         );
         // console.log(
         //   `${process.env.NEXT_PUBLIC_API_URL}/frc/trivia/get-questions/?${urlParams.toString()}`,
@@ -219,7 +219,6 @@ export default function FRCTrivia() {
                   return;
                 }
 
-                //TODO: make question data not fetch if user didn't change any question fields
                 setFetchQuestionData((prev) => prev + 1);
               }}
               className="group flex rounded-full items-center justify-center h-12 w-30 bg-linear-to-r from-[#026640] via-[#0c3c64] to-[#151287] p-[3px] text-base hover:shadow-lg hover:shadow-[#110e73]/30 transition ease-in-out duration:300"
