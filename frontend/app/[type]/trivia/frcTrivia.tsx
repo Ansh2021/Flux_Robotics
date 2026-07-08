@@ -83,7 +83,7 @@ export default function FRCTrivia() {
       );
       try {
         const res = await fetch(
-          `${BASE_URL}/frc/trivia/get-questions/?${urlParams.toString()}`,
+          `${BASE_URL}/api/frc/trivia/get-questions/?${urlParams.toString()}`,
         );
         // console.log(
         //   `${process.env.NEXT_PUBLIC_API_URL}/frc/trivia/get-questions/?${urlParams.toString()}`,

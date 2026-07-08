@@ -26,7 +26,7 @@ app.get("/api/health", (req: Request, res: Response) => {
   res.json({ status: "ok", message: "Backend is running!" });
 });
 
-app.use("/frc", frcRouter);
+app.use("/api/frc", frcRouter);
 
 if (!process.env.VERCEL_ENV) {
   app.listen(PORT, () => {

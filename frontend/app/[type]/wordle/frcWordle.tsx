@@ -638,7 +638,7 @@ function FRCdleTable({
             area !== "regionals"
           ) {
             const res = await fetch(
-              `${BASE_URL}/frc/wordle/multiple?district=${area}`,
+              `${BASE_URL}/api/frc/wordle/multiple?district=${area}`,
             );
 
             if (!res.ok) {
@@ -659,7 +659,7 @@ function FRCdleTable({
           }
         } else if (allFRCAreaData.length === 0) {
           const resAll = await fetch(
-            `${BASE_URL}/frc/wordle/multiple?district=all`,
+            `${BASE_URL}/api/frc/wordle/multiple?district=all`,
           );
           if (!resAll.ok) {
             throw new Error(`Error status: ${resAll.status}`);
@@ -830,7 +830,7 @@ function FRCdleTable({
         try {
           setIsTeamRequestLoading(true);
           const res = await fetch(
-            `${BASE_URL}/frc/wordle/team?number=${teamNum}`,
+            `${BASE_URL}/api/frc/wordle/team?number=${teamNum}`,
           );
 
           if (!res.ok) {
