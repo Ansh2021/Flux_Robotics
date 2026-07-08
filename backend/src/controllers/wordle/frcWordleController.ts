@@ -523,7 +523,8 @@ export const getTeamData = async (
       }
 
       console.log("used db");
-      return res.status(200).json(data);
+      // console.log(data);
+      return res.status(200).json(data[0]);
     } catch (error: any) {
       console.error(error);
       throw error;

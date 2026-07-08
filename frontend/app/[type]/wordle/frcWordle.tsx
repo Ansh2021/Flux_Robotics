@@ -341,7 +341,7 @@ function FRCModalDifficultyInput({
         });
 
   return (
-    <div id="test" className="mx-auto h-10 w-full">
+    <div className="mx-auto h-10 w-full">
       <Combobox
         value={frcSelectedDifficulty}
         onChange={(value) => setFRCSelectedDifficulty(value)}
@@ -1057,7 +1057,7 @@ function FRCdleTable({
             </tr>
           </thead>
           <tbody className="text-center">
-            {tableRows &&
+            {tableRows.length > 0 &&
               tableRows.map((row, index) => (
                 <tr key={index}>
                   <td
