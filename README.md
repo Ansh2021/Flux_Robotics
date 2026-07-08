@@ -4,7 +4,7 @@ The center for all games _FIRST_ Robotics.
 
 My way of spreading a love for _FIRST_, STEM, and robotics in general.
 
-Check it out at <https://fluxrobotics.vercel.app>!
+Check it out at [fluxrobotics.vercel.app](https://fluxrobotics.vercel.app)!
 
 ## Built With
 
