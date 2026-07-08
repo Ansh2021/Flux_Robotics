@@ -7,7 +7,8 @@
     "backend": {
       "root": "backend",
       "framework": "express",
-      "entrypoint": "src/server.ts"
+      "entrypoint": "src/server.ts",
+      "runtime": "node"
     }
   },
   "rewrites": [
@@ -26,7 +27,7 @@
       }
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js)$).*)",
       "destination": {
         "type": "service",
         "service": "frontend"
