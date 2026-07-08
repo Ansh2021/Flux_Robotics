@@ -20,14 +20,7 @@
       }
     },
     {
-      "source": "/_next/(.*)",
-      "destination": {
-        "type": "service",
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/(.*)",
+      "source": "/:path*",
       "destination": {
         "type": "service",
         "service": "frontend"
