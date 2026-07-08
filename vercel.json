@@ -13,7 +13,7 @@
   },
   "rewrites": [
     {
-      "source": "/api/frc/:path*",
+      "source": "/api/frc(/.*)?",
       "destination": {
         "service": "backend"
       }
