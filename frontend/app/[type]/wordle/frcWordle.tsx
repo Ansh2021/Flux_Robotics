@@ -26,9 +26,9 @@ Area Rank Calc=
 10-((Area Rank-1)/(Num Teams in Area-1)*9)
 */
 
+const environment: string = process.env.NEXT_PUBLIC_VERCEL_ENV;
 const BASE_URL =
-  process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ||
-  process.env.NEXT_PUBLIC_VERCEL_ENV === "preview"
+  environment === "production" || environment === "preview"
     ? ""
     : "http://localhost:5000";
 
@@ -622,7 +622,6 @@ function FRCdleTable({
   }, [tableRows]);
 
   useEffect(() => {
-    //TODO: uncomment the function below pls
     async function getAreaFRCData(area: string) {
       try {
         // if (
@@ -639,6 +638,7 @@ function FRCdleTable({
             (area === "regionals" && regionalFRCAreaData.length === 0) ||
             area !== "regionals"
           ) {
+            // console.log(BASE_URL);
             const res = await fetch(
               `${BASE_URL}/api/frc/wordle/multiple?district=${area}`,
             );

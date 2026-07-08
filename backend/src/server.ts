@@ -5,9 +5,9 @@ import { router } from "./routes/frcRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 7000;
+const environment = process.env.VERCEL_ENV;
 const FRONTEND_URL =
-  process.env.VERCEL_ENV === "production" ||
-  process.env.VERCEL_ENV === "preview"
+  environment === "production" || environment === "preview"
     ? false
     : "http://localhost:3000";
 
@@ -38,7 +38,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 
 app.use("/api/frc", frcRouter);
 
-if (process.env.VERCEL_ENV === "development") {
+if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Backend running on http://localhost:${PORT}`);
   });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Combobox,
   ComboboxButton,
@@ -14,9 +14,9 @@ import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { Bounce, toast } from "react-toastify";
 
+const environment: string = process.env.NEXT_PUBLIC_VERCEL_ENV;
 const BASE_URL =
-  process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ||
-  process.env.NEXT_PUBLIC_VERCEL_ENV === "preview"
+  environment === "production" || environment === "preview"
     ? ""
     : "http://localhost:5000";
 
@@ -591,6 +591,8 @@ function FRCTriviaQuestions({
 
   //TODO: randomize answers (correct answer shouldn't always be A)
   useEffect(() => {
+    setFinalAnswer("");
+    setSelectedLetter("");
     const answer_: string[] =
       questionData?.answer_type === "MCQ"
         ? questionData?.answers.split(/,\s*/) //gets rid of the whitespace
@@ -629,17 +631,24 @@ function FRCTriviaQuestions({
       questionData?.answer_type === "FRQ" ||
       questionData?.answer_type === "True/False"
     ) {
-      if (finalAnswer === questionAnswers[0]) {
+      if (finalAnswer && finalAnswer === questionAnswers[0]) {
         setTotalAnswered((prev) => prev + 1);
         setTotalCorrect((prev) => prev + 1);
-      } else {
+        return;
+      }
+      if (finalAnswer) {
         setTotalAnswered((prev) => prev + 1);
       }
     } else if (questionData?.answer_type === "MCQ") {
-      if (finalAnswer === shuffledAnswers[randomQuestionIndexes.indexOf(0)]) {
+      if (
+        finalAnswer &&
+        finalAnswer === shuffledAnswers[randomQuestionIndexes.indexOf(0)]
+      ) {
         setTotalAnswered((prev) => prev + 1);
         setTotalCorrect((prev) => prev + 1);
-      } else {
+        return;
+      }
+      if (finalAnswer) {
         setTotalAnswered((prev) => prev + 1);
       }
     }
