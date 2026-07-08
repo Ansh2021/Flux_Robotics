@@ -1,18 +1,15 @@
 import express from "express";
 import {
-  getSingleTeamData,
-  test,
-  testAgain,
-  testAgainin,
+  getAreaData,
+  getTeamData,
 } from "../controllers/wordle/frcWordleController.js";
-import { getAreaTeamData } from "../controllers/wordle/frcWordleController.js";
 import { getTriviaQuestions } from "../controllers/trivia/frcTriviaController.js";
 
 export const router = express.Router();
 
 //wordle
-router.get("/wordle/team", testAgainin);
-router.get("/wordle/multiple", testAgain);
+router.get("/wordle/team", getTeamData);
+router.get("/wordle/multiple", getAreaData);
 
 //trivia
 router.get("/trivia/get-questions", getTriviaQuestions);

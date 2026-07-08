@@ -146,185 +146,185 @@ interface SingleTeamFetchParams {
 
 //TODO: implement Etag If-None-Match into api calls
 //ehhh maybe not (i'll see)
-export const getSingleTeamData = async (
-  req: Request<SingleTeamFetchParams>,
-  res: Response,
-): Promise<Response> => {
-  //try catches are so cool
-  try {
-    const teamNum = req.query.number;
-    console.log(teamNum);
+// export const getSingleTeamData = async (
+//   req: Request<SingleTeamFetchParams>,
+//   res: Response,
+// ): Promise<Response> => {
+//   //try catches are so cool
+//   try {
+//     const teamNum = req.query.number;
+//     console.log(teamNum);
 
-    if (!teamNum) {
-      return res
-        .status(400)
-        .json({ error: "Please input a team number parameter." });
-    }
+//     if (!teamNum) {
+//       return res
+//         .status(400)
+//         .json({ error: "Please input a team number parameter." });
+//     }
 
-    //For team name, rookie year
-    const response1 = await fetch(
-      `https://www.thebluealliance.com/api/v3/team/frc${teamNum}`,
-      {
-        method: "GET",
-        headers: {
-          "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
-          accept: "application/json",
-        },
-      },
-    );
+//     //For team name, rookie year
+//     const response1 = await fetch(
+//       `https://www.thebluealliance.com/api/v3/team/frc${teamNum}`,
+//       {
+//         method: "GET",
+//         headers: {
+//           "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+//           accept: "application/json",
+//         },
+//       },
+//     );
 
-    if (!response1.ok) {
-      throw new Error(
-        `The TBA API responded with status code ${response1.status}`,
-      );
-    }
+//     if (!response1.ok) {
+//       throw new Error(
+//         `The TBA API responded with status code ${response1.status}`,
+//       );
+//     }
 
-    const data1 = (await response1.json()) as TBATeamData;
+//     const data1 = (await response1.json()) as TBATeamData;
 
-    //For award num
-    const response2 = await fetch(
-      `https://www.thebluealliance.com/api/v3/team/frc${teamNum}/awards/2026
-`,
-      {
-        method: "GET",
-        headers: {
-          "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
-          accept: "application/json",
-        },
-      },
-    );
+//     //For award num
+//     const response2 = await fetch(
+//       `https://www.thebluealliance.com/api/v3/team/frc${teamNum}/awards/2026
+// `,
+//       {
+//         method: "GET",
+//         headers: {
+//           "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+//           accept: "application/json",
+//         },
+//       },
+//     );
 
-    if (!response2.ok) {
-      throw new Error(
-        `The TBA API responded with status code ${response2.status}`,
-      );
-    }
+//     if (!response2.ok) {
+//       throw new Error(
+//         `The TBA API responded with status code ${response2.status}`,
+//       );
+//     }
 
-    const data2 = (await response2.json()) as Award[];
+//     const data2 = (await response2.json()) as Award[];
 
-    //For num years participating with FIRST
-    const response3 = await fetch(
-      `https://www.thebluealliance.com/api/v3/team/frc${teamNum}/years_participated
-`,
-      {
-        method: "GET",
-        headers: {
-          "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
-          accept: "application/json",
-        },
-      },
-    );
+//     //For num years participating with FIRST
+//     const response3 = await fetch(
+//       `https://www.thebluealliance.com/api/v3/team/frc${teamNum}/years_participated
+// `,
+//       {
+//         method: "GET",
+//         headers: {
+//           "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+//           accept: "application/json",
+//         },
+//       },
+//     );
 
-    if (!response3.ok) {
-      throw new Error(
-        `The TBA API responded with status code ${response3.status}`,
-      );
-    }
+//     if (!response3.ok) {
+//       throw new Error(
+//         `The TBA API responded with status code ${response3.status}`,
+//       );
+//     }
 
-    const data3 = (await response3.json()) as number[];
+//     const data3 = (await response3.json()) as number[];
 
-    //For area
-    const response4 = await fetch(
-      `https://www.thebluealliance.com/api/v3/team/frc${teamNum}/districts
-`,
-      {
-        method: "GET",
-        headers: {
-          "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
-          accept: "application/json",
-        },
-      },
-    );
+//     //For area
+//     const response4 = await fetch(
+//       `https://www.thebluealliance.com/api/v3/team/frc${teamNum}/districts
+// `,
+//       {
+//         method: "GET",
+//         headers: {
+//           "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+//           accept: "application/json",
+//         },
+//       },
+//     );
 
-    if (!response4.ok) {
-      throw new Error(
-        `The TBA API responded with status code ${response4.status}`,
-      );
-    }
+//     if (!response4.ok) {
+//       throw new Error(
+//         `The TBA API responded with status code ${response4.status}`,
+//       );
+//     }
 
-    const data4 = (await response4.json()) as District[];
-    const data4_ =
-      data4.length > 0 ? data4[data4.length - 1].display_name : "Regional";
+//     const data4 = (await response4.json()) as District[];
+//     const data4_ =
+//       data4.length > 0 ? data4[data4.length - 1].display_name : "Regional";
 
-    const response5 =
-      data4.length > 0
-        ? await fetch(
-            `https://www.thebluealliance.com/api/v3/district/2026${data4[data4.length - 1].abbreviation}/rankings`,
-            {
-              method: "GET",
-              headers: {
-                "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
-                accept: "application/json",
-              },
-            },
-          )
-        : await fetch(
-            `https://www.thebluealliance.com/api/v3/regional_advancement/2026/rankings`,
-            {
-              method: "GET",
-              headers: {
-                "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
-                accept: "application/json",
-              },
-            },
-          );
+//     const response5 =
+//       data4.length > 0
+//         ? await fetch(
+//             `https://www.thebluealliance.com/api/v3/district/2026${data4[data4.length - 1].abbreviation}/rankings`,
+//             {
+//               method: "GET",
+//               headers: {
+//                 "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+//                 accept: "application/json",
+//               },
+//             },
+//           )
+//         : await fetch(
+//             `https://www.thebluealliance.com/api/v3/regional_advancement/2026/rankings`,
+//             {
+//               method: "GET",
+//               headers: {
+//                 "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+//                 accept: "application/json",
+//               },
+//             },
+//           );
 
-    if (!response5.ok) {
-      throw new Error(
-        `The TBA API responded with status code ${response5.status}`,
-      );
-    }
+//     if (!response5.ok) {
+//       throw new Error(
+//         `The TBA API responded with status code ${response5.status}`,
+//       );
+//     }
 
-    const data5 = (await response5.json()) as TBAAreaData[];
-    const data5_ = data5.find(
-      (data) => data.team_key === `frc${teamNum}`,
-    )?.rank;
+//     const data5 = (await response5.json()) as TBAAreaData[];
+//     const data5_ = data5.find(
+//       (data) => data.team_key === `frc${teamNum}`,
+//     )?.rank;
 
-    //for unitless epa and epa rank
-    const response6 = await fetch(
-      `https://api.statbotics.io/v3/team_year/${teamNum}/2026
-`,
-      {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-        },
-      },
-    );
+//     //for unitless epa and epa rank
+//     const response6 = await fetch(
+//       `https://api.statbotics.io/v3/team_year/${teamNum}/2026
+// `,
+//       {
+//         method: "GET",
+//         headers: {
+//           accept: "application/json",
+//         },
+//       },
+//     );
 
-    if (!response6.ok) {
-      throw new Error(
-        `The Statbotics API responded with status code ${response6.status}`,
-      );
-    }
+//     if (!response6.ok) {
+//       throw new Error(
+//         `The Statbotics API responded with status code ${response6.status}`,
+//       );
+//     }
 
-    const data6 = (await response6.json()) as StatboticsTeamYearData;
+//     const data6 = (await response6.json()) as StatboticsTeamYearData;
 
-    //final, returnable data
-    const returnData = {
-      teamNum: teamNum,
-      teamName: data1.nickname,
-      area: data4_,
-      areaRank: data5_,
-      rookieYear: data1.rookie_year,
-      numYearsParticipating: data3.length,
-      unitlessEPA: data6.epa.unitless,
-      epaRank: data6.epa.ranks.district.rank,
-      worldEPARank: data6.epa.ranks.total.rank,
-      totalNumTeams: data6.epa.ranks.district.team_count,
-      awardNum: data2.length,
-    };
+//     //final, returnable data
+//     const returnData = {
+//       teamNum: teamNum,
+//       teamName: data1.nickname,
+//       area: data4_,
+//       areaRank: data5_,
+//       rookieYear: data1.rookie_year,
+//       numYearsParticipating: data3.length,
+//       unitlessEPA: data6.epa.unitless,
+//       epaRank: data6.epa.ranks.district.rank,
+//       worldEPARank: data6.epa.ranks.total.rank,
+//       totalNumTeams: data6.epa.ranks.district.team_count,
+//       awardNum: data2.length,
+//     };
 
-    return res.status(200).json(returnData);
-  } catch (error: any) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ error: "There was an issue with the server." });
-  }
-};
+//     return res.status(200).json(returnData);
+//   } catch (error: any) {
+//     console.log(error);
+//     return res
+//       .status(500)
+//       .json({ error: "There was an issue with the server." });
+//   }
+// };
 
-export const testAgainin = async (
+export const getTeamData = async (
   req: Request<SingleTeamFetchParams>,
   res: Response,
 ): Promise<Response> => {
@@ -556,175 +556,175 @@ interface MultiTeamFetchParams {
   district: string;
 }
 
-export const getAreaTeamData = async (
-  req: Request<MultiTeamFetchParams>,
-  res: Response,
-): Promise<Response> => {
-  try {
-    const area = req.query.district;
-    console.log(area);
+// export const getAreaTeamData = async (
+//   req: Request<MultiTeamFetchParams>,
+//   res: Response,
+// ): Promise<Response> => {
+//   try {
+//     const area = req.query.district;
+//     console.log(area);
 
-    if (!area) {
-      return res.status(400).json({ error: "Please input an area parameter." });
-    }
+//     if (!area) {
+//       return res.status(400).json({ error: "Please input an area parameter." });
+//     }
 
-    if (area === "regionals") {
-      const response1 = await fetch(
-        "https://www.thebluealliance.com/api/v3/regional_advancement/2026/rankings",
-        {
-          method: "GET",
-          headers: {
-            "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
-            accept: "application/json",
-          },
-        },
-      );
+//     if (area === "regionals") {
+//       const response1 = await fetch(
+//         "https://www.thebluealliance.com/api/v3/regional_advancement/2026/rankings",
+//         {
+//           method: "GET",
+//           headers: {
+//             "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+//             accept: "application/json",
+//           },
+//         },
+//       );
 
-      if (!response1.ok) {
-        throw new Error(
-          `The TBA API responded with status code ${response1.status}`,
-        );
-      }
+//       if (!response1.ok) {
+//         throw new Error(
+//           `The TBA API responded with status code ${response1.status}`,
+//         );
+//       }
 
-      const data1 = (await response1.json()) as TBAAreaData[];
-      const data1_ = data1.sort(
-        (a, b) =>
-          parseInt(a.team_key.replace(/\D/g, "")) -
-          parseInt(b.team_key.replace(/\D/g, "")),
-      );
+//       const data1 = (await response1.json()) as TBAAreaData[];
+//       const data1_ = data1.sort(
+//         (a, b) =>
+//           parseInt(a.team_key.replace(/\D/g, "")) -
+//           parseInt(b.team_key.replace(/\D/g, "")),
+//       );
 
-      let offset = 0;
-      let regionalTeams: StatboticsTeamYearData[] = [];
-      let curPulledTeams: StatboticsTeamYearData[];
-      do {
-        const response2 =
-          offset == 0
-            ? await fetch("https://api.statbotics.io/v3/team_years?year=2026", {
-                method: "GET",
-                headers: {
-                  accept: "application/json",
-                },
-              })
-            : await fetch(
-                `https://api.statbotics.io/v3/team_years?year=2026&offset=${offset}`,
-                {
-                  method: "GET",
-                  headers: {
-                    accept: "application/json",
-                  },
-                },
-              );
-        if (!response2.ok) {
-          throw new Error(
-            `The Statbotics API responded with status code: ${response2.status}`,
-          );
-        }
-        curPulledTeams = (await response2.json()) as StatboticsTeamYearData[];
-        regionalTeams =
-          offset == 0 ? curPulledTeams : [...regionalTeams, ...curPulledTeams];
-        offset += 1000;
-      } while (curPulledTeams.length >= 1000);
+//       let offset = 0;
+//       let regionalTeams: StatboticsTeamYearData[] = [];
+//       let curPulledTeams: StatboticsTeamYearData[];
+//       do {
+//         const response2 =
+//           offset == 0
+//             ? await fetch("https://api.statbotics.io/v3/team_years?year=2026", {
+//                 method: "GET",
+//                 headers: {
+//                   accept: "application/json",
+//                 },
+//               })
+//             : await fetch(
+//                 `https://api.statbotics.io/v3/team_years?year=2026&offset=${offset}`,
+//                 {
+//                   method: "GET",
+//                   headers: {
+//                     accept: "application/json",
+//                   },
+//                 },
+//               );
+//         if (!response2.ok) {
+//           throw new Error(
+//             `The Statbotics API responded with status code: ${response2.status}`,
+//           );
+//         }
+//         curPulledTeams = (await response2.json()) as StatboticsTeamYearData[];
+//         regionalTeams =
+//           offset == 0 ? curPulledTeams : [...regionalTeams, ...curPulledTeams];
+//         offset += 1000;
+//       } while (curPulledTeams.length >= 1000);
 
-      const data2 = [];
-      for (let i = 0; i < regionalTeams.length; i++) {
-        if (
-          !regionalTeams[i].district &&
-          regionalTeams[i].record.count !== 0 &&
-          !regionalTeams[i].name.includes("Off-Season Demo Team")
-        ) {
-          data2.push({
-            teamNum: regionalTeams[i].team,
-            teamName: regionalTeams[i].name,
-            rookieYear: regionalTeams[i].rookie_year,
-            unitlessEPA: regionalTeams[i].epa.unitless,
-            epaRank: regionalTeams[i].epa.ranks.district.rank,
-            worldEPARank: regionalTeams[i].epa.ranks.total.rank,
-            totalNumTeams: regionalTeams[i].epa.ranks.district.team_count,
-          });
-        }
-      }
+//       const data2 = [];
+//       for (let i = 0; i < regionalTeams.length; i++) {
+//         if (
+//           !regionalTeams[i].district &&
+//           regionalTeams[i].record.count !== 0 &&
+//           !regionalTeams[i].name.includes("Off-Season Demo Team")
+//         ) {
+//           data2.push({
+//             teamNum: regionalTeams[i].team,
+//             teamName: regionalTeams[i].name,
+//             rookieYear: regionalTeams[i].rookie_year,
+//             unitlessEPA: regionalTeams[i].epa.unitless,
+//             epaRank: regionalTeams[i].epa.ranks.district.rank,
+//             worldEPARank: regionalTeams[i].epa.ranks.total.rank,
+//             totalNumTeams: regionalTeams[i].epa.ranks.district.team_count,
+//           });
+//         }
+//       }
 
-      const returnableData = [];
-      for (let i = 0; i < data2.length; i++) {
-        returnableData.push({
-          teamNum: data2[i].teamNum,
-          teamName: data2[i].teamName,
-          rookieYear: data2[i].rookieYear,
-          unitlessEPA: data2[i].unitlessEPA,
-          epaRank: data2[i].epaRank,
-          worldEPARank: data2[i].worldEPARank,
-          areaRank: data1_[i].rank,
-          totalNumTeams: data2[i].totalNumTeams,
-        });
-      }
+//       const returnableData = [];
+//       for (let i = 0; i < data2.length; i++) {
+//         returnableData.push({
+//           teamNum: data2[i].teamNum,
+//           teamName: data2[i].teamName,
+//           rookieYear: data2[i].rookieYear,
+//           unitlessEPA: data2[i].unitlessEPA,
+//           epaRank: data2[i].epaRank,
+//           worldEPARank: data2[i].worldEPARank,
+//           areaRank: data1_[i].rank,
+//           totalNumTeams: data2[i].totalNumTeams,
+//         });
+//       }
 
-      return res.status(200).json(returnableData);
-    } else {
-      //For everything except area rank
-      const response1 = await fetch(
-        `https://api.statbotics.io/v3/team_years?year=2026&district=${area}`,
-        {
-          method: "GET",
-          headers: {
-            accept: "application/json",
-          },
-        },
-      );
+//       return res.status(200).json(returnableData);
+//     } else {
+//       //For everything except area rank
+//       const response1 = await fetch(
+//         `https://api.statbotics.io/v3/team_years?year=2026&district=${area}`,
+//         {
+//           method: "GET",
+//           headers: {
+//             accept: "application/json",
+//           },
+//         },
+//       );
 
-      if (!response1.ok) {
-        throw new Error(
-          `The Statbotics API responded with status code: ${response1.status}`,
-        );
-      }
+//       if (!response1.ok) {
+//         throw new Error(
+//           `The Statbotics API responded with status code: ${response1.status}`,
+//         );
+//       }
 
-      const data1 = (await response1.json()) as StatboticsTeamYearData[];
+//       const data1 = (await response1.json()) as StatboticsTeamYearData[];
 
-      const response2 = await fetch(
-        `https://www.thebluealliance.com/api/v3/district/2026${area}/rankings`,
-        {
-          method: "GET",
-          headers: {
-            "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
-            accept: "application/json",
-          },
-        },
-      );
+//       const response2 = await fetch(
+//         `https://www.thebluealliance.com/api/v3/district/2026${area}/rankings`,
+//         {
+//           method: "GET",
+//           headers: {
+//             "X-TBA-Auth-Key": process.env.TBA_AUTH_KEY || "",
+//             accept: "application/json",
+//           },
+//         },
+//       );
 
-      if (!response2.ok) {
-        throw new Error(
-          `The TBA API responded with status code ${response2.status}`,
-        );
-      }
+//       if (!response2.ok) {
+//         throw new Error(
+//           `The TBA API responded with status code ${response2.status}`,
+//         );
+//       }
 
-      const data2 = (await response2.json()) as TBAAreaData[];
-      const data2_ = data2.sort(
-        (a, b) =>
-          parseInt(a.team_key.replace(/\D/g, "")) -
-          parseInt(b.team_key.replace(/\D/g, "")),
-      );
+//       const data2 = (await response2.json()) as TBAAreaData[];
+//       const data2_ = data2.sort(
+//         (a, b) =>
+//           parseInt(a.team_key.replace(/\D/g, "")) -
+//           parseInt(b.team_key.replace(/\D/g, "")),
+//       );
 
-      const returnableData = [];
-      for (let i = 0; i < data1.length; i++) {
-        returnableData.push({
-          teamNum: data1[i].team,
-          teamName: data1[i].name,
-          rookieYear: data1[i].rookie_year,
-          unitlessEPA: data1[i].epa.unitless,
-          epaRank: data1[i].epa.ranks.district.rank,
-          worldEPARank: data1[i].epa.ranks.total.rank,
-          areaRank: data2_[i].rank,
-        });
-      }
+//       const returnableData = [];
+//       for (let i = 0; i < data1.length; i++) {
+//         returnableData.push({
+//           teamNum: data1[i].team,
+//           teamName: data1[i].name,
+//           rookieYear: data1[i].rookie_year,
+//           unitlessEPA: data1[i].epa.unitless,
+//           epaRank: data1[i].epa.ranks.district.rank,
+//           worldEPARank: data1[i].epa.ranks.total.rank,
+//           areaRank: data2_[i].rank,
+//         });
+//       }
 
-      return res.status(200).json(returnableData);
-    }
-  } catch (error: any) {
-    console.error(error);
-    return res
-      .status(500)
-      .json({ error: "There was an issue with the server." });
-  }
-};
+//       return res.status(200).json(returnableData);
+//     }
+//   } catch (error: any) {
+//     console.error(error);
+//     return res
+//       .status(500)
+//       .json({ error: "There was an issue with the server." });
+//   }
+// };
 
 interface DataBaseParams {
   areaRank: number | null;
@@ -742,7 +742,7 @@ interface DataBaseParams {
 /*if the user cannot fetch the most up to date data from the APIs,
   they'll fetch from the database.
 */
-export const testAgain = async (
+export const getAreaData = async (
   req: Request<MultiTeamFetchParams>,
   res: Response,
 ): Promise<Response> => {
