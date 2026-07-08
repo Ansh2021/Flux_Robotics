@@ -1,11 +1,11 @@
 {
   "services": {
     "frontend": {
-      "root": "frontend/",
+      "root": "frontend",
       "framework": "nextjs"
     },
     "backend": {
-      "root": "backend/",
+      "root": "backend",
       "framework": "express",
       "entrypoint": "src/server.ts",
       "runtime": "node"
@@ -13,16 +13,14 @@
   },
   "rewrites": [
     {
-      "source": "/api/frc(/.*)?",
+      "source": "/api/frc/:path*",
       "destination": {
-        "type": "service",
         "service": "backend"
       }
     },
     {
-      "source": "/(.*)?",
+      "source": "/((?!api/frc).*)",
       "destination": {
-        "type": "service",
         "service": "frontend"
       }
     }
