@@ -12,6 +12,13 @@
   },
   "rewrites": [
     {
+      "source": "/_next/image(/.*)?",
+      "destination": {
+        "type": "service",
+        "service": "frontend"
+      }
+    },
+    {
       "source": "/api/frc(/.*)?",
       "destination": {
         "type": "service",
