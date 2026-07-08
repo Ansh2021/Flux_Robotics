@@ -26,9 +26,11 @@ Area Rank Calc=
 10-((Area Rank-1)/(Num Teams in Area-1)*9)
 */
 
-const BASE_URL = process.env.NEXT_PUBLIC_VERCEL_ENV
-  ? ""
-  : "http://localhost:5000";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ||
+  process.env.NEXT_PUBLIC_VERCEL_ENV === "preview"
+    ? ""
+    : "http://localhost:5000";
 
 export default function FRCWordle() {
   const [frcModalVisible, setFRCModalVisible] = useState(false);
@@ -518,7 +520,7 @@ function FRCdleTable({
           throw new Error("This team has already been guessed");
         }
         const res = await fetch(
-          `${BASE_URL}/frc/wordle/team?number=${teamNum}`,
+          `${BASE_URL}/api/frc/wordle/team?number=${teamNum}`,
         );
 
         if (!res.ok) {

@@ -14,9 +14,11 @@ import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { Bounce, toast } from "react-toastify";
 
-const BASE_URL = process.env.NEXT_PUBLIC_VERCEL_ENV
-  ? ""
-  : "http://localhost:5000";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ||
+  process.env.NEXT_PUBLIC_VERCEL_ENV === "preview"
+    ? ""
+    : "http://localhost:5000";
 
 //Filtering options for questions
 //Core Category (general FIRST knowledge, events, awards, team)
@@ -86,7 +88,7 @@ export default function FRCTrivia() {
           `${BASE_URL}/api/frc/trivia/get-questions/?${urlParams.toString()}`,
         );
         // console.log(
-        //   `${process.env.NEXT_PUBLIC_API_URL}/frc/trivia/get-questions/?${urlParams.toString()}`,
+        //   `${process.env.NEXT_PUBLIC_API_URL}/api/frc/trivia/get-questions/?${urlParams.toString()}`,
         // );
 
         if (!res.ok) {
