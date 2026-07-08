@@ -18,13 +18,6 @@
         "type": "service",
         "service": "backend"
       }
-    },
-    {
-      "source": "/:path*",
-      "destination": {
-        "type": "service",
-        "service": "frontend"
-      }
     }
   ]
 }
