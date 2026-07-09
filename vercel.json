@@ -1,5 +1,5 @@
 {
-  "framework": "services",
+  "experimentalServices": {},
   "services": {
     "frontend": {
       "root": "frontend",
