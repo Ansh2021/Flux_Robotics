@@ -15,15 +15,13 @@
     {
       "source": "/api/frc/:path*",
       "destination": {
-        "service": "backend",
-        "path": "/api/frc/:path*"
+        "service": "backend"
       }
     },
     {
       "source": "/:path*",
       "destination": {
-        "service": "frontend",
-        "path": "/:path*"
+        "service": "frontend"
       }
     }
   ]
