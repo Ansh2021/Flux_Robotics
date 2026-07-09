@@ -16,7 +16,7 @@
       "source": "/api/frc/:path*",
       "destination": {
         "service": "backend",
-        "path": "/:path*"
+        "path": "/api/frc/:path*"
       }
     },
     {

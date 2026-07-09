@@ -13,6 +13,10 @@ const FRONTEND_URL =
 
 const frcRouter = router;
 
+app.get("/api/frc/health", (req, res) => {
+  res.json({ status: "backend is up and running" });
+});
+
 app.use(
   cors({
     origin: FRONTEND_URL,
