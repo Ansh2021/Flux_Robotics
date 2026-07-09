@@ -13,9 +13,9 @@ export default function Wordle({
   const { type } = use(params);
   // console.log(type);
 
-  if (!(type.toLowerCase() === "frc" || type.toLowerCase() === "ftc")) {
-    notFound();
-  }
+  // if (!(type.toLowerCase() === "frc" || type.toLowerCase() === "ftc")) {
+  //   notFound();
+  // }
 
   if (type.toLowerCase() === "frc") {
     return <FRCWordle />;
