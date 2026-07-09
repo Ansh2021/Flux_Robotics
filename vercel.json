@@ -2,12 +2,10 @@
   "version": 2,
   "services": {
     "frontend": {
-      "root": "frontend",
-      "framework": "nextjs"
+      "root": "frontend"
     },
     "backend": {
       "root": "backend",
-      "framework": "express",
       "entrypoint": "src/server.ts"
     }
   },
