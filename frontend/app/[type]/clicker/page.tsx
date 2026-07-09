@@ -12,9 +12,9 @@ export default function Trivia({
 }) {
   const { type } = use(params);
 
-  // if (!(type.toLowerCase() === "frc" || type.toLowerCase() === "ftc")) {
-  //   notFound();
-  // }
+  if (!(type.toLowerCase() === "frc" || type.toLowerCase() === "ftc")) {
+    notFound();
+  }
 
   if (type.toLowerCase() === "frc") {
     return <FRCClicker />;

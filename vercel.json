@@ -18,7 +18,7 @@
       }
     },
     {
-      "source": "/:path*",
+      "source": "/:path((?!api/frc).*)",
       "destination": {
         "service": "frontend"
       }
