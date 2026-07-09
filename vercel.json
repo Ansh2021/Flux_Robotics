@@ -1,5 +1,5 @@
 {
-  "experimentalServices": {},
+  "version": 2,
   "services": {
     "frontend": {
       "root": "frontend",
@@ -19,7 +19,7 @@
       }
     },
     {
-      "source": "/:path((?!api/frc).*)",
+      "source": "/:path*",
       "destination": {
         "service": "frontend"
       }
