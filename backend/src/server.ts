@@ -32,13 +32,13 @@ app.use(
 );
 app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "hi!" });
-});
+// app.get("/", (req: Request, res: Response) => {
+//   res.json({ message: "hi!" });
+// });
 
-app.get("/api/health", (req: Request, res: Response) => {
-  res.json({ status: "ok", message: "Backend is running!" });
-});
+// app.get("/api/health", (req: Request, res: Response) => {
+//   res.json({ status: "ok", message: "Backend is running!" });
+// });
 
 app.use("/api/frc", frcRouter);
 
