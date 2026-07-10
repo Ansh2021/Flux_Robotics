@@ -10,7 +10,11 @@ import {
   Input,
   Label,
 } from "@headlessui/react";
-import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowPathIcon,
+  CheckIcon,
+  ChevronDownIcon,
+} from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { Bounce, toast } from "react-toastify";
 
@@ -183,9 +187,12 @@ export default function FRCTrivia() {
       <div className="h-[calc(100dvh-4rem)] flex flex-col items-center justify-center">
         <FRCTriviaQuestions
           questionsVisible={questionsVisible}
+          setQuestionsVisible={setQuestionsVisible}
           questionData={randomQuestion}
           setShuffleQuestion={setShuffleQuestion}
           endTrivia={endTrivia}
+          setEndTrivia={setEndTrivia}
+          setTriviaModalVisible={setTriviaModalVisible}
         />
 
         <FRCTriviaModal triviaModalVisible={triviaModalVisible}>
@@ -567,14 +574,20 @@ function FRCTriviaModal({
 
 function FRCTriviaQuestions({
   questionsVisible,
+  setQuestionsVisible,
   questionData,
   setShuffleQuestion,
   endTrivia,
+  setEndTrivia,
+  setTriviaModalVisible,
 }: {
   questionsVisible: boolean;
+  setQuestionsVisible: React.Dispatch<React.SetStateAction<boolean>>;
   questionData: QuestionData;
   setShuffleQuestion: React.Dispatch<React.SetStateAction<number>>;
   endTrivia: boolean;
+  setEndTrivia: React.Dispatch<React.SetStateAction<boolean>>;
+  setTriviaModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [questionAnswers, setQuestionAnswers] = useState<string[]>([]);
   const [shuffledAnswers, setShuffledAnswers] = useState<string[]>([]);
@@ -627,11 +640,11 @@ function FRCTriviaQuestions({
   }, [randomQuestionIndexes]);
 
   useEffect(() => {
-    if (
-      questionData?.answer_type === "FRQ" ||
-      questionData?.answer_type === "True/False"
-    ) {
-      if (finalAnswer && finalAnswer === questionAnswers[0]) {
+    if (questionData?.answer_type === "FRQ") {
+      if (
+        finalAnswer &&
+        finalAnswer.toLowerCase() === questionAnswers[0].toLowerCase()
+      ) {
         setTotalAnswered((prev) => prev + 1);
         setTotalCorrect((prev) => prev + 1);
         return;
@@ -644,6 +657,15 @@ function FRCTriviaQuestions({
         finalAnswer &&
         finalAnswer === shuffledAnswers[randomQuestionIndexes.indexOf(0)]
       ) {
+        setTotalAnswered((prev) => prev + 1);
+        setTotalCorrect((prev) => prev + 1);
+        return;
+      }
+      if (finalAnswer) {
+        setTotalAnswered((prev) => prev + 1);
+      }
+    } else if (questionData?.answer_type === "True/False") {
+      if (finalAnswer && finalAnswer === questionAnswers[0]) {
         setTotalAnswered((prev) => prev + 1);
         setTotalCorrect((prev) => prev + 1);
         return;
@@ -809,10 +831,25 @@ function FRCTriviaQuestions({
           </>
         )}
         {endTrivia && (
-          <div>
+          <div className="flex flex-col justify-center items-center gap-3 w-fit">
             <p className="font-bold text-2xl">
               You answered {totalCorrect}/{totalAnswered}.
             </p>
+            <button
+              onClick={() => {
+                setEndTrivia(false);
+                setQuestionsVisible(false);
+                setTriviaModalVisible(true);
+                setFinalAnswer("");
+                setGuessedAnswer("");
+                setSelectedLetter("");
+                setTotalAnswered(0);
+                setTotalCorrect(0);
+              }}
+              className="flex rounded-md items-center justify-center h-10 w-10 bg-black hover:bg-[#1E1E1E] transition ease-in-out duration-300 text-base"
+            >
+              <ArrowPathIcon className="fill-white size-5" />
+            </button>
           </div>
         )}
       </div>

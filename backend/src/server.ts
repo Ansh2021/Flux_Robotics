@@ -9,13 +9,9 @@ const environment = process.env.NODE_ENV;
 const FRONTEND_URL =
   environment === "production"
     ? "https://fluxrobotics.vercel.app"
-    : "http://localhost:5000";
+    : "http://localhost:3000";
 
 const frcRouter = router;
-
-app.get("/api/frc/health", (req, res) => {
-  res.json({ status: "backend is up and running" });
-});
 
 app.use(
   cors({
@@ -32,9 +28,9 @@ app.use(
 );
 app.use(express.json());
 
-// app.get("/", (req: Request, res: Response) => {
-//   res.json({ message: "hi!" });
-// });
+app.get("/", (req: Request, res: Response) => {
+  res.json({ message: "You've hit the Flux Robotics backend!" });
+});
 
 // app.get("/api/health", (req: Request, res: Response) => {
 //   res.json({ status: "ok", message: "Backend is running!" });
@@ -46,4 +42,4 @@ app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
 
-export default app;
+// export default app;
