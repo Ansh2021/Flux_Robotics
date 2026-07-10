@@ -1,28 +1,13 @@
 {
   "version": 2,
-  "services": {
-    "frontend": {
-      "root": "frontend",
-      "framework": "nextjs"
-    },
-    "backend": {
-      "root": "backend",
-      "framework": "express",
-      "entrypoint": "src/server.ts"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/frc/:path*",
-      "destination": {
-        "service": "backend"
-      }
+      "destination": "https://flux-robotics-backend.onrender.com"
     },
     {
       "source": "/:path*",
-      "destination": {
-        "service": "frontend"
-      }
+      "destination": "frontend/index.html"
     }
   ]
 }
