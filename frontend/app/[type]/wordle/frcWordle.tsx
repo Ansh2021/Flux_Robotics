@@ -871,8 +871,8 @@ function FRCdleTable({
         );
       } else {
         // errorToast("Failed to fetch guessable team");
-        console.log("diff calc", difficultyCalculations);
-        console.log("valid teams", validTeams);
+        // console.log("diff calc", difficultyCalculations);
+        // console.log("valid teams", validTeams);
       }
     }
     setGuessAmount(0);

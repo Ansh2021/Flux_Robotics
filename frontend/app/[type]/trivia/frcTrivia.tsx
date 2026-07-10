@@ -98,7 +98,7 @@ export default function FRCTrivia() {
         const data = (await res.json()) as QuestionData[];
         setQuestionData(data);
         setValidQuestions(data);
-        console.log(data);
+        // console.log(data);
 
         setTriviaModalVisible(false);
         setQuestionsVisible(true);
