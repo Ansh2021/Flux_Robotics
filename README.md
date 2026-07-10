@@ -1,6 +1,6 @@
 # Flux Robotics
 
-The center for all games _FIRST_ Robotics.
+The center for all (close enough) games _FIRST_ Robotics.
 
 My way of spreading a love for _FIRST_, STEM, and robotics in general.
 
@@ -13,5 +13,7 @@ Check it out at [fluxrobotics.vercel.app](https://fluxrobotics.vercel.app)!
   - Express.js
   - ReactJS (Next.js)
   - Node.js
+- Vercel (frontend hosting)
+- Render (backend hosting)
 - [The Blue Alliance API](https://www.thebluealliance.com/apidocs/v3)
 - [Statbotics REST API](https://www.statbotics.io/docs/rest)
