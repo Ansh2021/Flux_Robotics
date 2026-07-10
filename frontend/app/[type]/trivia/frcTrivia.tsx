@@ -17,8 +17,8 @@ import { Bounce, toast } from "react-toastify";
 const environment: string = process.env.NEXT_PUBLIC_VERCEL_ENV;
 const BASE_URL =
   environment === "production" || environment === "preview"
-    ? ""
-    : "http://localhost:5000";
+    ? process.env.NEXT_PUBLIC_BACKEND_URL
+    : process.env.NEXT_PUBLIC_API_URL;
 
 //Filtering options for questions
 //Core Category (general FIRST knowledge, events, awards, team)

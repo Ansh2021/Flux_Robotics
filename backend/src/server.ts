@@ -4,12 +4,12 @@ import cors from "cors";
 import { router } from "./routes/frcRoutes.js";
 
 const app = express();
-const PORT = process.env.PORT || 7000;
-const environment = process.env.VERCEL_ENV;
+const PORT = process.env.PORT || 10000;
+const environment = process.env.NODE_ENV;
 const FRONTEND_URL =
-  environment === "production" || environment === "preview"
-    ? false
-    : "http://localhost:3000";
+  environment === "production"
+    ? "https://fluxrobotics.vercel.app"
+    : "http://localhost:5000";
 
 const frcRouter = router;
 
@@ -42,10 +42,8 @@ app.use(express.json());
 
 app.use("/api/frc", frcRouter);
 
-if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`Backend running on http://localhost:${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
+});
 
 export default app;
